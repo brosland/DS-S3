@@ -106,6 +106,14 @@ public class FactoryLayout {
 		}
 	}
 	
+	public FactoryPosition [] getStorageBounds(Roll.Type storageType)
+	{
+		return new FactoryPosition[]{
+			getStoragePosition(storageType).add(-50, -25),
+			getStoragePosition(storageType).add(50, 25)
+		};
+	}
+	
 	public FactoryPosition getCoolingStoragePosition()
 	{
 		return new FactoryPosition(400, 260);

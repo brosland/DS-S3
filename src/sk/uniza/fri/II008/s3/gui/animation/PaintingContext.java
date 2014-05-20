@@ -1,10 +1,13 @@
 package sk.uniza.fri.II008.s3.gui.animation;
 
 import java.awt.Graphics2D;
+import java.util.HashMap;
+import java.util.LinkedList;
 
 import sk.uniza.fri.II008.s3.FactoryReplication;
 import sk.uniza.fri.II008.s3.model.Crane;
 import sk.uniza.fri.II008.s3.model.Elevator;
+import sk.uniza.fri.II008.s3.model.Employee;
 import sk.uniza.fri.II008.s3.model.Factory;
 import sk.uniza.fri.II008.s3.model.Roll;
 import sk.uniza.fri.II008.s3.model.RollStorable;
@@ -24,6 +27,7 @@ public class PaintingContext {
 	private ElevatorPainter elevatorPainter = new ElevatorPainter(this);
 	private StoragePainter storagePainter = new StoragePainter(this);
 	private CranePainter cranePainter = new CranePainter(this);
+	private EmployeesPainter employeesPainter = new EmployeesPainter(this);
 	
 	public PaintingContext(FactoryView view, Graphics2D graphics, FactoryLayout layout, Factory factory, FactoryReplication replication)
 	{
@@ -77,6 +81,24 @@ public class PaintingContext {
 		}
 	}
 	
+	private void paintEmployees()
+	{
+		HashMap<Storage, Integer> employeesInStorages = new HashMap<>();
+		for(Employee employee : factory.getEmployees())
+		{
+			Storage storage = employee.getCurrentStorage();
+			if(!employeesInStorages.containsKey(storage)) {
+				employeesInStorages.put(storage, 0);
+			}
+			employeesInStorages.put(storage, employeesInStorages.get(storage)+1);
+		}
+		
+		for(Storage storage : employeesInStorages.keySet())
+		{
+			employeesPainter.paint(storage, employeesInStorages.get(storage));
+		}
+	}
+	
 	public void paint()
 	{
 		outlinePainter.paint();
@@ -87,6 +109,7 @@ public class PaintingContext {
 			paintExportElevators();
 			paintStorages();
 			paintCranes();
+			paintEmployees();
 		}
 	}
 	

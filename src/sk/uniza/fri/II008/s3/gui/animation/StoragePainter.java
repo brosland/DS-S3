@@ -20,7 +20,6 @@ public class StoragePainter {
 		int centerX = context.view.transformX(position.getX());
 		int centerY = context.view.transformY(position.getY());
 		
-		
 		int fillWidth = Math.round((float)(width*storage.getFilling()));
 		
 		context.graphics.setColor(Color.BLACK);
