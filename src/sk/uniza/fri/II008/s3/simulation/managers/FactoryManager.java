@@ -2,6 +2,7 @@ package sk.uniza.fri.II008.s3.simulation.managers;
 
 import OSPABA.Agent;
 import OSPABA.MessageForm;
+import java.util.List;
 import sk.uniza.fri.II008.s3.FactorySimulation.Generator;
 import sk.uniza.fri.II008.s3.model.*;
 import sk.uniza.fri.II008.s3.simulation.ComponentType;
@@ -67,22 +68,41 @@ public class FactoryManager extends BaseManager
 			getFactoryReplication().log("FactoryManager[INIT]");
 		}
 
-//		Storage processingStorage = null;
-//		// find max filled processing storage
-//		for (Roll.Type rollType : Roll.Type.values())
-//		{
-//			Storage s = getFactory().getProcessingStorage(rollType);
-//
-//			if (processingStorage == null || processingStorage.getFilling() < s.getFilling())
-//			{
-//				processingStorage = s;
-//			}
-//		}
-//
-//		// 2. zhodnotí, ktorý sklad je na tom najhoršie a v tom sklade dá opracovať nejakú rolku
-//		// 3. ak je niečo, čo sa môže odviesť zo skladu na odkladacie miesto, povie StorageManagerovi aby to zabezpečil
-//		// 4. ak je niečo, čo sa môže preniesť na export, --//--
-//		throw new UnsupportedOperationException("Not supported yet.");
+		List<ProcessingStorage> processingStorages = getFactory().getProcessingStorages();
+		Storage coolingStorage = getFactory().getCoolingStorage();
+
+		while (!coolingStorage.isFull())
+		{
+			ProcessingStorage processingStorage = null;
+
+			for (ProcessingStorage ps : processingStorages)
+			{
+				if (ps.hasRoll(Roll.State.PROCESSED)
+					&& (processingStorage == null || processingStorage.getFilling() < ps.getFilling()))
+				{
+					processingStorage = ps;
+				}
+			}
+
+			if (processingStorage != null)
+			{
+				Roll roll = processingStorage.getRoll(Roll.State.PROCESSED);
+				coolingStorage.getReservation(roll);
+				transportRoll(roll, processingStorage, coolingStorage);
+			}
+			else
+			{
+				break;
+			}
+		}
+
+		for (ProcessingStorage processingStorage : processingStorages)
+		{
+			for (Roll roll : processingStorage.getRolls(Roll.State.UNPROCESSED))
+			{
+				createRequestForProcessRoll(roll);
+			}
+		}
 	}
 
 	private void onImportMessageReceived(RollMessage rollMessage)
@@ -164,12 +184,7 @@ public class FactoryManager extends BaseManager
 		if (transportRollMessage.getTo() instanceof ProcessingStorage) // processing storage
 		{
 			transportRollMessage.getRoll().setState(Roll.State.UNPROCESSED);
-
-			RollMessage rollMessage = new RollMessage(_mySim, transportRollMessage.getRoll());
-			rollMessage.setCode(MessageType.PROCESS_ROLL);
-			rollMessage.setAddressee(_mySim.findAgent(ComponentType.EMPLOYEE_AGENT));
-
-			request(rollMessage);
+			createRequestForProcessRoll(transportRollMessage.getRoll());
 		}
 		else if (transportRollMessage.getTo() instanceof Storage) // cooling storage
 		{
@@ -264,5 +279,14 @@ public class FactoryManager extends BaseManager
 		transportRollMessage.setAddressee(_mySim.findAgent(ComponentType.TRANSPORT_AGENT));
 
 		request(transportRollMessage);
+	}
+
+	private void createRequestForProcessRoll(Roll roll)
+	{
+		RollMessage rollMessage = new RollMessage(_mySim, roll);
+		rollMessage.setCode(MessageType.PROCESS_ROLL);
+		rollMessage.setAddressee(_mySim.findAgent(ComponentType.EMPLOYEE_AGENT));
+
+		request(rollMessage);
 	}
 }

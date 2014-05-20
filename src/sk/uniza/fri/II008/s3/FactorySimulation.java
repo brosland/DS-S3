@@ -7,6 +7,7 @@ import java.util.Random;
 import sk.uniza.fri.II008.Simulation;
 import sk.uniza.fri.II008.generators.*;
 import sk.uniza.fri.II008.s3.model.Factory;
+import sk.uniza.fri.II008.s3.model.Roll;
 import sk.uniza.fri.II008.s3.simulation.MessageType;
 import sk.uniza.fri.II008.s3.simulation.generators.ImportElevatorGenerator;
 import sk.uniza.fri.II008.s3.simulation.generators.ErlangGenerator;
@@ -114,6 +115,10 @@ public class FactorySimulation extends Simulation
 		}
 
 		factory.reset();
+		factory.initProcessingStorage(Roll.Type.A, 0.5, 0.6);
+		factory.initProcessingStorage(Roll.Type.B, 0.33, 0.4);
+		factory.initProcessingStorage(Roll.Type.C, 0.65, 0.55);
+		factory.initCoolingStorage(0.51, 0.35);
 
 		factoryReplication = new FactoryReplication(this);
 		factoryReplication.registerDelegate(simDelegate);

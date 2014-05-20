@@ -43,6 +43,42 @@ public class Factory
 		return factory;
 	}
 
+	public void initProcessingStorage(Roll.Type rollType, double filled, double processed)
+	{
+		ArrayList<Roll> rolls = new ArrayList<>();
+		ProcessingStorage processingStorage = getProcessingStorage(rollType);
+
+		for (int i = 0; i < processingStorage.getCapacity() * filled; i++)
+		{
+			Roll roll = new Roll(rollType);
+			rolls.add(roll);
+			processingStorage.addRoll(roll);
+		}
+
+		for (int i = 0; i < rolls.size() * processed; i++)
+		{
+			rolls.get(i).setState(Roll.State.PROCESSED);
+		}
+	}
+
+	public void initCoolingStorage(double filled, double preparedToExport)
+	{
+		ArrayList<Roll> rolls = new ArrayList<>();
+		Storage storage = getCoolingStorage();
+
+		for (int i = 0; i < storage.getCapacity() * filled; i++)
+		{
+			Roll roll = new Roll(Roll.Type.A);
+			rolls.add(roll);
+			storage.addRoll(roll);
+		}
+
+		for (int i = 0; i < rolls.size() * preparedToExport; i++)
+		{
+			rolls.get(i).setState(Roll.State.READY);
+		}
+	}
+
 	public Factory()
 	{
 		cranes = new ArrayList<>(3);
@@ -112,6 +148,11 @@ public class Factory
 	public synchronized Elevator getExportElevator()
 	{
 		return exportElevator;
+	}
+
+	public synchronized List<ProcessingStorage> getProcessingStorages()
+	{
+		return new ArrayList<>(processingStorages.values());
 	}
 
 	public synchronized ProcessingStorage getProcessingStorage(Roll.Type rollType)
