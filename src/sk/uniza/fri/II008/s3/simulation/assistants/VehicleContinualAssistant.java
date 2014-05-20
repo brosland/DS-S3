@@ -3,6 +3,7 @@ package sk.uniza.fri.II008.s3.simulation.assistants;
 import OSPABA.Agent;
 import OSPABA.MessageForm;
 import sk.uniza.fri.II008.s3.model.Navigation;
+import sk.uniza.fri.II008.s3.model.Vehicle;
 import sk.uniza.fri.II008.s3.model.requests.VehicleRequest;
 import sk.uniza.fri.II008.s3.simulation.ComponentType;
 import sk.uniza.fri.II008.s3.simulation.MessageType;
@@ -20,47 +21,52 @@ public class VehicleContinualAssistant extends BaseContinualAssistant
 	@Override
 	public void processMessage(MessageForm message)
 	{
-		TransferVehicleMessage tvMessage = (TransferVehicleMessage) message;
-
 		switch (message.code())
 		{
 			case MessageType.start:
-
-				tvMessage.setCode(MessageType.TRANSFER_VEHICLE_DONE);
-
-				double distance = Navigation.getDistance(tvMessage.getVehicle().getLocation(),
-					tvMessage.getDestination());
-
-				double duration = Navigation.getDuration(tvMessage.getVehicle().getLocation(),
-					tvMessage.getDestination(), tvMessage.getVehicle().getSpeed());
-
-				VehicleRequest vehicleRequest = new VehicleRequest(_mySim.currentTime(),
-					duration, tvMessage.getVehicle().getLocation(), tvMessage.getDestination());
-
-				tvMessage.getVehicle().setVehicleRequest(vehicleRequest);
-
-				hold(duration, tvMessage);
-
-				if (getFactorySimulation().isEnabledLogging())
-				{
-					getFactoryReplication().log(String.format("VehicleContinualAssistant[start]\n"
-						+ " - vehicle %s is transfering from %s to %s (distance: %.2fkm/h, %.2fs)",
-						tvMessage.getVehicle(), tvMessage.getVehicle().getLocation(),
-						tvMessage.getDestination(), distance, duration));
-				}
+				onStartMessageReceived((TransferVehicleMessage) message);
 				break;
 			case MessageType.TRANSFER_VEHICLE_DONE:
-				if (getFactorySimulation().isEnabledLogging())
-				{
-					getFactoryReplication().log(String.format(
-						"VehicleContinualAssistant[TRANSFER_VEHICLE_DONE]\n - vehicle %s transfered",
-						tvMessage.getVehicle()));
-				}
-
-				tvMessage.getVehicle().removeVehicleRequest();
-
-				assistantFinished(tvMessage);
+				onTransferVehicleDone((TransferVehicleMessage) message);
 				break;
 		}
+	}
+
+	private void onStartMessageReceived(TransferVehicleMessage transferVehicleMessage)
+	{
+		Vehicle vehicle = transferVehicleMessage.getVehicle();
+
+		double distance = Navigation.getDistance(vehicle.getLocation(),
+			transferVehicleMessage.getDestination());
+		double duration = distance / vehicle.getSpeed();
+
+		VehicleRequest vehicleRequest = new VehicleRequest(_mySim.currentTime(),
+			duration, vehicle.getLocation(), transferVehicleMessage.getDestination());
+
+		vehicle.setVehicleRequest(vehicleRequest);
+
+		transferVehicleMessage.setCode(MessageType.TRANSFER_VEHICLE_DONE);
+		hold(duration, transferVehicleMessage);
+
+		if (getFactorySimulation().isEnabledLogging())
+		{
+			getFactoryReplication().log(String.format("VehicleContinualAssistant[start]\n"
+				+ " - vehicle %s is transfering from %s to %s (distance: %.2fkm/h, %.2fs)",
+				vehicle, vehicle.getLocation(), transferVehicleMessage.getDestination(), distance, duration));
+		}
+	}
+
+	private void onTransferVehicleDone(TransferVehicleMessage transferVehicleMessage)
+	{
+		Vehicle vehicle = transferVehicleMessage.getVehicle();
+		vehicle.removeVehicleRequest();
+
+		if (getFactorySimulation().isEnabledLogging())
+		{
+			getFactoryReplication().log(String.format("VehicleContinualAssistant[TRANSFER_VEHICLE_DONE]\n"
+				+ " - vehicle %s transfered", vehicle));
+		}
+
+		assistantFinished(transferVehicleMessage);
 	}
 }

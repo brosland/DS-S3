@@ -7,11 +7,16 @@ import sk.uniza.fri.II008.s3.gui.animation.FactoryLayout;
 import sk.uniza.fri.II008.s3.gui.animation.FactoryView;
 import sk.uniza.fri.II008.s3.gui.animation.Painter;
 import sk.uniza.fri.II008.s3.model.Factory;
+import sk.uniza.fri.II008.s3.FactorySimulation;
 
 public class AnimationPanel extends javax.swing.JPanel
 {
-	public AnimationPanel()
+	private final FactorySimulation simulation;
+
+	public AnimationPanel(FactorySimulation simulation)
 	{
+		this.simulation = simulation;
+
 		initComponents();
 	}
 
@@ -49,7 +54,7 @@ public class AnimationPanel extends javax.swing.JPanel
 		
 		FactoryLayout layout = new FactoryLayout();
 		FactoryView view = new FactoryView(layout, getSize().width, getSize().height);
-		Painter painter = new Painter(view, (Graphics2D)graphics, layout);
-		painter.paint();
+		//Painter painter = new Painter(view, (Graphics2D)graphics, layout);
+		//painter.paint();
 	}
 }

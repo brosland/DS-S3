@@ -198,7 +198,7 @@ public class ReplicationWindow extends javax.swing.JFrame
         rollStorageFillingTable = new javax.swing.JTable();
         resultsChartPanel = new javax.swing.JPanel();
         animationScrollPane = new javax.swing.JScrollPane();
-        animationPanel = new AnimationPanel();
+        animationPanel = new AnimationPanel(simulation);
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
 
