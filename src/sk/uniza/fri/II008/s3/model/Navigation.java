@@ -49,6 +49,6 @@ public class Navigation
 
 	public static double getDuration(Location locationA, Location locationB, double speed)
 	{
-		return 1f * (getDistance(locationA, locationB) / speed) * 3600;
+		return 1f * (getDistance(locationA, locationB) / speed);
 	}
 }

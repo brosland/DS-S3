@@ -38,7 +38,8 @@ public class VehicleContinualAssistant extends BaseContinualAssistant
 
 		double distance = Navigation.getDistance(vehicle.getLocation(),
 			transferVehicleMessage.getDestination());
-		double duration = distance / vehicle.getSpeed();
+		double duration = Navigation.getDuration(vehicle.getLocation(),
+			transferVehicleMessage.getDestination(), vehicle.getSpeed()) * 3600;
 
 		VehicleRequest vehicleRequest = new VehicleRequest(_mySim.currentTime(),
 			duration, vehicle.getLocation(), transferVehicleMessage.getDestination());
@@ -59,6 +60,7 @@ public class VehicleContinualAssistant extends BaseContinualAssistant
 	private void onTransferVehicleDone(TransferVehicleMessage transferVehicleMessage)
 	{
 		Vehicle vehicle = transferVehicleMessage.getVehicle();
+		vehicle.setLocation(transferVehicleMessage.getDestination());
 		vehicle.removeVehicleRequest();
 
 		if (getFactorySimulation().isEnabledLogging())

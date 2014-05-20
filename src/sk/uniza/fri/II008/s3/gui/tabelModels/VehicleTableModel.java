@@ -4,7 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.swing.SwingUtilities;
 import javax.swing.table.AbstractTableModel;
+import sk.uniza.fri.II008.Utils;
 import sk.uniza.fri.II008.s3.model.Vehicle;
+import sk.uniza.fri.II008.s3.model.requests.VehicleRequest;
 
 public class VehicleTableModel extends AbstractTableModel
 {
@@ -26,18 +28,37 @@ public class VehicleTableModel extends AbstractTableModel
 					return String.format("%.1f", vehicle.getSpeed());
 				}
 			},
+		LOCATION("Pozícia")
+			{
+				@Override
+				public Object getValue(Vehicle vehicle)
+				{
+					return vehicle.getLocation();
+				}
+			},
+		ROLL("Rolka")
+			{
+				@Override
+				public Object getValue(Vehicle vehicle)
+				{
+					return vehicle.hasRoll() ? vehicle.getRoll() : "";
+				}
+			},
 		STATE("Stav")
 			{
 				@Override
 				public Object getValue(Vehicle vehicle)
 				{
-					if (vehicle.hasRoll())
+					if (vehicle.hasVehicleRequest())
 					{
-						return String.format("Presun rolky %s", vehicle.getRoll());
+						VehicleRequest vehicleRequest = vehicle.getVehicleRequest();
+
+						return String.format("Presun z %s do %s (%s)", vehicleRequest.getFrom(),
+							vehicleRequest.getTo(), Utils.formatTime(vehicleRequest.getEndTimestamp()));
 					}
 					else
 					{
-						return vehicle.isBusy() ? "Presun vozidla" : "Voľný";
+						return vehicle.isBusy() ? "Obsadené" : "Voľné";
 					}
 				}
 			};
