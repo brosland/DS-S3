@@ -1,9 +1,15 @@
 package sk.uniza.fri.II008.s3.gui;
 
+import sk.uniza.fri.II008.s3.FactorySimulation;
+
 public class AnimationPanel extends javax.swing.JPanel
 {
-	public AnimationPanel()
+	private final FactorySimulation simulation;
+
+	public AnimationPanel(FactorySimulation simulation)
 	{
+		this.simulation = simulation;
+
 		initComponents();
 	}
 
