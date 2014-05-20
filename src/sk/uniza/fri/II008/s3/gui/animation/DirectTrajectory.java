@@ -15,8 +15,8 @@ public class DirectTrajectory implements Trajectory
 	public FactoryPosition getInterpolated(float coeficient)
 	{
 		return new FactoryPosition(
-			from.getX()*coeficient + to.getX()*(1-coeficient),
-			from.getY()*coeficient + to.getY()*(1-coeficient)
+			from.getX()*(1-coeficient) + to.getX()*coeficient,
+			from.getY()*(1-coeficient) + to.getY()*coeficient
 		);
 	}
 	

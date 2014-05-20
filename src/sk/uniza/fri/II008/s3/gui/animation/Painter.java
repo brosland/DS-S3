@@ -3,6 +3,7 @@ package sk.uniza.fri.II008.s3.gui.animation;
 import java.awt.Color;
 import java.awt.Graphics2D;
 
+import sk.uniza.fri.II008.s3.FactoryReplication;
 import sk.uniza.fri.II008.s3.model.Factory;
 import sk.uniza.fri.II008.s3.model.Vehicle;
 import sk.uniza.fri.II008.s3.model.requests.VehicleRequest;
@@ -12,9 +13,11 @@ public class Painter {
 	private Graphics2D graphics;
 	private FactoryLayout layout;
 	private Factory factory;
+	private FactoryReplication replication;
 	
-	public Painter(FactoryView view, Graphics2D graphics, FactoryLayout layout, Factory factory)
+	public Painter(FactoryView view, Graphics2D graphics, FactoryLayout layout, Factory factory, FactoryReplication replication)
 	{
+		this.replication = replication;
 		this.layout = layout;
 		this.view = view;
 		this.graphics = graphics;
@@ -23,7 +26,7 @@ public class Painter {
 	
 	private void fillCircle(int x, int y, int radius)
 	{
-		graphics.fillRoundRect(x-radius, y-radius, radius*2, radius*2, radius, radius);
+		graphics.fillRoundRect(x-radius, y-radius, radius*2, radius*2, radius*2, radius*2);
 	}
 	
 	private void paintOutline()
@@ -58,18 +61,36 @@ public class Painter {
 	{
 		graphics.setColor(Color.BLACK);
 		for(Vehicle vehicle : factory.getVehicles()) {
+			System.out.print("Vehicle "+vehicle);
+			
 			FactoryPosition position = layout.getPositionFor(vehicle.getLocation());
 			
 			if(vehicle.hasVehicleRequest()) {
+				System.out.print(" which has request");
 				VehicleRequest request = vehicle.getVehicleRequest();
-				Trajectory trajectory = layout.getVehicleTrajectory(request.getFrom(), request.getTo());
-			
-				double currentTime = 0f; // TODO load from simulation
 				
-				double interpolation = (currentTime - request.getStartTimestamp()) / request.getDuration();
-				
-				position = trajectory.getInterpolated((float)interpolation);
+				if(request.getFrom() != request.getTo()) {
+					System.out.println(" that is valid");
+					Trajectory trajectory = layout.getVehicleTrajectory(request.getFrom(), request.getTo());
+
+					double currentTime = replication.currentTime();
+					
+					double interpolation = (currentTime - request.getStartTimestamp()) / request.getDuration();
+					
+					if(interpolation > 1) {
+						interpolation = 1;
+					}
+					if(interpolation < 0) {
+						interpolation = 0;
+					}
+					
+					System.out.println(interpolation);
+					
+					position = trajectory.getInterpolated((float)interpolation);
+				}
 			}
+			
+			System.out.println();
 			
 			int x = view.transformX(position.getX());
 			int y = view.transformY(position.getY());
@@ -80,10 +101,12 @@ public class Painter {
 	
 	public void paint()
 	{
+		System.out.println(System.currentTimeMillis()+" Repainting");
+		
 		paintOutline();
 		paintTrajectories();
 		
-		if(true /* simulation is running */) {
+		if(replication != null) {
 			paintVehicles();
 		}
 	}
