@@ -146,7 +146,7 @@ public class FactoryManager extends BaseManager
 			}
 		}
 
-		if (from != null)
+		if (roll != null && storageMessage.getStorage().getReservation(roll))
 		{
 			transportRoll(roll, from, storageMessage.getStorage());
 		}
@@ -232,7 +232,6 @@ public class FactoryManager extends BaseManager
 		if (elevator.hasRoll(Roll.State.READY))
 		{
 			Roll roll = elevator.getRoll(Roll.State.READY);
-
 			elevator.removeRoll(roll);
 
 			if (getFactorySimulation().isEnabledLogging())
@@ -246,7 +245,12 @@ public class FactoryManager extends BaseManager
 
 		if (storage.hasRoll(Roll.State.READY))
 		{
-			transportRoll(storage.getRoll(Roll.State.READY), storage, elevator);
+			Roll roll = storage.getRoll(Roll.State.READY);
+
+			if (elevator.getReservation(roll))
+			{
+				transportRoll(storage.getRoll(Roll.State.READY), storage, elevator);
+			}
 		}
 	}
 
