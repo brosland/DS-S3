@@ -1,5 +1,12 @@
 package sk.uniza.fri.II008.s3.gui;
 
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+
+import sk.uniza.fri.II008.s3.gui.animation.FactoryLayout;
+import sk.uniza.fri.II008.s3.gui.animation.FactoryView;
+import sk.uniza.fri.II008.s3.gui.animation.Painter;
+import sk.uniza.fri.II008.s3.model.Factory;
 import sk.uniza.fri.II008.s3.FactorySimulation;
 
 public class AnimationPanel extends javax.swing.JPanel
@@ -38,4 +45,16 @@ public class AnimationPanel extends javax.swing.JPanel
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     // End of variables declaration//GEN-END:variables
+	
+	@Override
+	public void paintComponent(Graphics graphics)
+	{
+		Factory factory = null;
+		// TODO load from simulation
+		
+		FactoryLayout layout = new FactoryLayout();
+		FactoryView view = new FactoryView(layout, getSize().width, getSize().height);
+		//Painter painter = new Painter(view, (Graphics2D)graphics, layout);
+		//painter.paint();
+	}
 }
