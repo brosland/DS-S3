@@ -197,6 +197,8 @@ public class ReplicationWindow extends javax.swing.JFrame
         rollStorageFillingTableScrollPane = new javax.swing.JScrollPane();
         rollStorageFillingTable = new javax.swing.JTable();
         resultsChartPanel = new javax.swing.JPanel();
+        animationScrollPane = new javax.swing.JScrollPane();
+        animationPanel = new javax.swing.JPanel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
 
@@ -582,6 +584,21 @@ public class ReplicationWindow extends javax.swing.JFrame
 
         tabbedPane.addTab("Výsledky", resultsScrollPane);
 
+        javax.swing.GroupLayout animationPanelLayout = new javax.swing.GroupLayout(animationPanel);
+        animationPanel.setLayout(animationPanelLayout);
+        animationPanelLayout.setHorizontalGroup(
+            animationPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 726, Short.MAX_VALUE)
+        );
+        animationPanelLayout.setVerticalGroup(
+            animationPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 463, Short.MAX_VALUE)
+        );
+
+        animationScrollPane.setViewportView(animationPanel);
+
+        tabbedPane.addTab("Vizualizácia", animationScrollPane);
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -769,6 +786,8 @@ public class ReplicationWindow extends javax.swing.JFrame
 	// <editor-fold defaultstate="collapsed" desc="Components">
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JCheckBox allowLogsCheckBox;
+    private javax.swing.JPanel animationPanel;
+    private javax.swing.JScrollPane animationScrollPane;
     private javax.swing.JLabel avrgWaitTimeLabel;
     private javax.swing.JLabel avrgWaitTimeValueLabel;
     private javax.swing.JSeparator contentSeparator;
