@@ -24,11 +24,17 @@ public abstract class AssignVehicleMessage extends VehicleMessage implements Com
 	@Override
 	public int compareTo(AssignVehicleMessage assignVehicleMessage)
 	{
-		if (rollStorage instanceof Elevator && assignVehicleMessage.getRollStorage() instanceof Storage)
+		if (rollStorage instanceof Elevator
+			&& assignVehicleMessage.getRollStorage() instanceof Storage)
 		{
 			return -1;
 		}
+		else if (rollStorage instanceof Storage
+			&& assignVehicleMessage.getRollStorage() instanceof Elevator)
+		{
+			return 1;
+		}
 
-		return rollStorage.getFilling() < assignVehicleMessage.getRollStorage().getFilling() ? 1 : -1;
+		return rollStorage.getFilling() > assignVehicleMessage.getRollStorage().getFilling() ? -1 : 1;
 	}
 }

@@ -2,9 +2,9 @@ package sk.uniza.fri.II008.s3.simulation.managers;
 
 import OSPABA.Agent;
 import OSPABA.MessageForm;
-import OSPDataStruct.SimQueue;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
-import java.util.PriorityQueue;
 import sk.uniza.fri.II008.s3.model.Crane;
 import sk.uniza.fri.II008.s3.simulation.ComponentType;
 import sk.uniza.fri.II008.s3.simulation.MessageType;
@@ -12,7 +12,7 @@ import sk.uniza.fri.II008.s3.simulation.messages.CraneTransportMessage;
 
 public class CraneManager extends BaseManager
 {
-	private final HashMap<Crane, PriorityQueue<CraneTransportMessage>> requests;
+	private final HashMap<Crane, ArrayList<CraneTransportMessage>> requests;
 
 	public CraneManager(Agent agent)
 	{
@@ -24,7 +24,7 @@ public class CraneManager extends BaseManager
 
 		for (Crane crane : getFactory().getCranes())
 		{
-			requests.put(crane, new PriorityQueue<CraneTransportMessage>());
+			requests.put(crane, new ArrayList<CraneTransportMessage>());
 		}
 	}
 
@@ -76,10 +76,13 @@ public class CraneManager extends BaseManager
 		response(craneTransportMessage);
 
 		craneTransportMessage.getCrane().setBusy(false);
+		
+		ArrayList<CraneTransportMessage> craneRequests = requests.get(craneTransportMessage.getCrane());
 
-		if (!requests.get(craneTransportMessage.getCrane()).isEmpty())
+		if (!craneRequests.isEmpty())
 		{
-			onTransferCraneMessageReceived(requests.get(craneTransportMessage.getCrane()).remove());
+			Collections.sort(craneRequests);
+			onTransferCraneMessageReceived(craneRequests.remove(0));
 		}
 	}
 }

@@ -2,8 +2,9 @@ package sk.uniza.fri.II008.s3.simulation.managers;
 
 import OSPABA.Agent;
 import OSPABA.MessageForm;
-import java.util.PriorityQueue;
-import sk.uniza.fri.II008.s3.model.Navigation.Location;
+import java.util.ArrayList;
+import java.util.Collections;
+import sk.uniza.fri.II008.s3.model.Factory;
 import sk.uniza.fri.II008.s3.model.Vehicle;
 import sk.uniza.fri.II008.s3.simulation.ComponentType;
 import sk.uniza.fri.II008.s3.simulation.MessageType;
@@ -13,8 +14,7 @@ import sk.uniza.fri.II008.s3.simulation.messages.TransferVehicleMessage;
 
 public class VehicleManager extends BaseManager
 {
-	private final PriorityQueue<AssignVehicleMessage> requests;
-	private static final Location START_LOCATION = Location.A;
+	private final ArrayList<AssignVehicleMessage> requests;
 
 	public VehicleManager(Agent agent)
 	{
@@ -25,7 +25,7 @@ public class VehicleManager extends BaseManager
 		agent.addOwnMessage(MessageType.TRANSFER_VEHICLE_DONE);
 		agent.addOwnMessage(MessageType.RELEASE_VEHICLE);
 
-		requests = new PriorityQueue<>();
+		requests = new ArrayList<>(1000);
 	}
 
 	@Override
@@ -103,7 +103,7 @@ public class VehicleManager extends BaseManager
 		}
 
 		TransferVehicleMessage transferVehicleMessage = new TransferVehicleMessage(
-			_mySim, vehicleMessage.getVehicle(), START_LOCATION)
+			_mySim, vehicleMessage.getVehicle(), Factory.DEFAULT_VEHICLE_LOCATION)
 			{
 				@Override
 				public void onDone()
@@ -119,7 +119,8 @@ public class VehicleManager extends BaseManager
 
 					if (!requests.isEmpty())
 					{
-						onAssignVehicleMessageReceived(requests.remove());
+						Collections.sort(requests);
+						onAssignVehicleMessageReceived(requests.remove(0));
 					}
 				}
 			};
