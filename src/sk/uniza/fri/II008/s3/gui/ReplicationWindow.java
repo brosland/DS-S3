@@ -31,16 +31,17 @@ public class ReplicationWindow extends javax.swing.JFrame
 
 	public ReplicationWindow(final FactorySimulation simulation)
 	{
+		this.simulation = simulation;
+		
 		initComponents();
 		initJFreeChart();
 
+		this.simulation.setReplicationListener(createReplicationListener());
+		
 		logsHandler = new TextAreaHandler(logsTextArea);
 		FactorySimulation.LOGGER.addHandler(logsHandler);
 
 		addWindowListener(createWindowListener());
-
-		this.simulation = simulation;
-		this.simulation.setReplicationListener(createReplicationListener());
 
 		rollStorageTable.getSelectionModel().addListSelectionListener(
 			createRollStorageTableSelectionListener());
