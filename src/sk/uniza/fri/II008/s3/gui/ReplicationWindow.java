@@ -198,7 +198,7 @@ public class ReplicationWindow extends javax.swing.JFrame
         rollStorageFillingTable = new javax.swing.JTable();
         resultsChartPanel = new javax.swing.JPanel();
         animationScrollPane = new javax.swing.JScrollPane();
-        animationPanel = new javax.swing.JPanel();
+        animationPanel = new AnimationPanel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
 
@@ -584,15 +584,17 @@ public class ReplicationWindow extends javax.swing.JFrame
 
         tabbedPane.addTab("Výsledky", resultsScrollPane);
 
+        animationScrollPane.setBorder(null);
+
         javax.swing.GroupLayout animationPanelLayout = new javax.swing.GroupLayout(animationPanel);
         animationPanel.setLayout(animationPanelLayout);
         animationPanelLayout.setHorizontalGroup(
             animationPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 726, Short.MAX_VALUE)
+            .addGap(0, 728, Short.MAX_VALUE)
         );
         animationPanelLayout.setVerticalGroup(
             animationPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 463, Short.MAX_VALUE)
+            .addGap(0, 465, Short.MAX_VALUE)
         );
 
         animationScrollPane.setViewportView(animationPanel);
