@@ -231,7 +231,7 @@ public class ReplicationWindow extends javax.swing.JFrame
 
         speedLabel.setText("Rýchlosť");
 
-        speedSlider.setMaximum(950);
+        speedSlider.setMaximum(990);
         speedSlider.setToolTipText("");
         speedSlider.setValue(500);
         speedSlider.addChangeListener(new javax.swing.event.ChangeListener()
