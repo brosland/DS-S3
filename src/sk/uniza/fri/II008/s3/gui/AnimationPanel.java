@@ -3,13 +3,15 @@ package sk.uniza.fri.II008.s3.gui;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 
+import sk.uniza.fri.II008.ISimulation;
 import sk.uniza.fri.II008.s3.gui.animation.FactoryLayout;
 import sk.uniza.fri.II008.s3.gui.animation.FactoryView;
-import sk.uniza.fri.II008.s3.gui.animation.Painter;
+import sk.uniza.fri.II008.s3.gui.animation.PaintingContext;
 import sk.uniza.fri.II008.s3.model.Factory;
+import sk.uniza.fri.II008.s3.FactoryReplication;
 import sk.uniza.fri.II008.s3.FactorySimulation;
 
-public class AnimationPanel extends javax.swing.JPanel
+public class AnimationPanel extends javax.swing.JPanel implements Runnable
 {
 	private final FactorySimulation simulation;
 
@@ -18,6 +20,11 @@ public class AnimationPanel extends javax.swing.JPanel
 		this.simulation = simulation;
 
 		initComponents();
+		
+		/** TODO Remove this, this automaticaly repaints this panel, should be otherwise. */
+		Thread updateThread = new Thread(this);
+		updateThread.setDaemon(true);
+		updateThread.start();
 	}
 
 	/**
@@ -49,12 +56,27 @@ public class AnimationPanel extends javax.swing.JPanel
 	@Override
 	public void paintComponent(Graphics graphics)
 	{
-		Factory factory = null;
-		// TODO load from simulation
+		FactoryReplication replication = simulation.getState() != ISimulation.State.STOPPED ? simulation.getCurrentReplication() : null;
 		
 		FactoryLayout layout = new FactoryLayout();
 		FactoryView view = new FactoryView(layout, getSize().width, getSize().height);
-		//Painter painter = new Painter(view, (Graphics2D)graphics, layout);
-		//painter.paint();
+		
+		PaintingContext painter = new PaintingContext(view, (Graphics2D)graphics, layout, simulation.getFactory(), replication);
+		painter.paint();
+	}
+	
+	/** TODO Remove this, this automaticaly repaints this panel, should be otherwise. */
+	@Override
+	public void run() {
+		try {
+			while(true) {
+				this.repaint();
+				
+				Thread.sleep(250);
+			}
+		} catch(InterruptedException e) {
+			e.printStackTrace();
+			return;
+		}
 	}
 }
