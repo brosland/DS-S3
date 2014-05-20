@@ -3,6 +3,7 @@ package sk.uniza.fri.II008.s3.simulation.assistants;
 import OSPABA.Agent;
 import OSPABA.MessageForm;
 import sk.uniza.fri.II008.s3.model.Navigation;
+import sk.uniza.fri.II008.s3.model.requests.VehicleRequest;
 import sk.uniza.fri.II008.s3.simulation.ComponentType;
 import sk.uniza.fri.II008.s3.simulation.MessageType;
 import sk.uniza.fri.II008.s3.simulation.messages.TransferVehicleMessage;
@@ -12,7 +13,7 @@ public class VehicleContinualAssistant extends BaseContinualAssistant
 	public VehicleContinualAssistant(Agent agent)
 	{
 		super(ComponentType.VEHICLE_CONTINUAL_ASSISTANT, agent.mySim(), agent);
-		
+
 		agent.addOwnMessage(MessageType.TRANSFER_VEHICLE_DONE);
 	}
 
@@ -24,14 +25,19 @@ public class VehicleContinualAssistant extends BaseContinualAssistant
 		switch (message.code())
 		{
 			case MessageType.start:
-				
+
 				tvMessage.setCode(MessageType.TRANSFER_VEHICLE_DONE);
-				
+
 				double distance = Navigation.getDistance(tvMessage.getVehicle().getLocation(),
 					tvMessage.getDestination());
 
 				double duration = Navigation.getDuration(tvMessage.getVehicle().getLocation(),
 					tvMessage.getDestination(), tvMessage.getVehicle().getSpeed());
+
+				VehicleRequest vehicleRequest = new VehicleRequest(_mySim.currentTime(),
+					duration, tvMessage.getVehicle().getLocation(), tvMessage.getDestination());
+
+				tvMessage.getVehicle().setVehicleRequest(vehicleRequest);
 
 				hold(duration, tvMessage);
 
@@ -51,7 +57,9 @@ public class VehicleContinualAssistant extends BaseContinualAssistant
 						tvMessage.getVehicle()));
 				}
 
-				assistantFinished(message);
+				tvMessage.getVehicle().removeVehicleRequest();
+
+				assistantFinished(tvMessage);
 				break;
 		}
 	}

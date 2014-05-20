@@ -1,6 +1,7 @@
 package sk.uniza.fri.II008.s3.model;
 
 import sk.uniza.fri.II008.s3.model.Navigation.Location;
+import sk.uniza.fri.II008.s3.model.requests.VehicleRequest;
 
 public class Vehicle implements RollStorable
 {
@@ -10,6 +11,7 @@ public class Vehicle implements RollStorable
 	private Location location;
 	private boolean busy = false;
 	private Roll roll = null;
+	private VehicleRequest vehicleRequest = null;
 
 	public Vehicle(double speed, Location location)
 	{
@@ -36,6 +38,26 @@ public class Vehicle implements RollStorable
 	public void setBusy(boolean busy)
 	{
 		this.busy = busy;
+	}
+
+	public boolean hasVehicleRequest()
+	{
+		return vehicleRequest != null;
+	}
+
+	public VehicleRequest getVehicleRequest()
+	{
+		return vehicleRequest;
+	}
+
+	public void setVehicleRequest(VehicleRequest vehicleRequest)
+	{
+		this.vehicleRequest = vehicleRequest;
+	}
+
+	public void removeVehicleRequest()
+	{
+		vehicleRequest = null;
 	}
 
 	public synchronized boolean hasRoll()
