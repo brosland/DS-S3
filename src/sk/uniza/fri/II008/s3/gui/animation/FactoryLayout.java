@@ -24,6 +24,10 @@ public class FactoryLayout {
 			vehiclePositionC, vehicleBottomRightCorner, vehicleTopRightCorner, vehiclePositionA
 			);
 	
+	private PointedTrajectory vehicleTrajectoryFromAtoB = new PointedTrajectory(
+			vehiclePositionA, vehiclePositionB
+			);
+	
 	private float width;
 	private float height;
 	
@@ -59,6 +63,8 @@ public class FactoryLayout {
 			return vehicleTrajectoryFromBtoC;
 		} else if(from == Location.C && to == Location.A) {
 			return vehicleTrajectoryFromCtoA;
+		} else if(from == Location.A && to == Location.B) {
+			return vehicleTrajectoryFromAtoB;
 		} else {
 			throw new RuntimeException("Unexpected trajectory from "+from+" to "+to);
 		}
@@ -69,7 +75,8 @@ public class FactoryLayout {
 		return new PointedTrajectory[]{
 			vehicleTrajectoryFromAtoC,
 			vehicleTrajectoryFromBtoC,
-			vehicleTrajectoryFromCtoA
+			vehicleTrajectoryFromCtoA,
+			vehicleTrajectoryFromAtoB
 		};
 	}
 }
