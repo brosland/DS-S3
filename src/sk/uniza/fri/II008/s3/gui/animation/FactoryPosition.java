@@ -28,6 +28,11 @@ public class FactoryPosition
 		return y;
 	}
 	
+	public FactoryPosition add(float x, float y)
+	{
+		return new FactoryPosition(this.x+x, this.y+y);
+	}
+	
 	@Override
 	public String toString() {
 		return "FP["+x+", "+y+"]";

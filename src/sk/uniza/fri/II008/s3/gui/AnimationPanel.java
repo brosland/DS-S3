@@ -72,7 +72,7 @@ public class AnimationPanel extends javax.swing.JPanel implements Runnable
 			while(true) {
 				this.repaint();
 				
-				Thread.sleep(250);
+				Thread.sleep(120);
 			}
 		} catch(InterruptedException e) {
 			e.printStackTrace();

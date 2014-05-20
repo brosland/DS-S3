@@ -13,46 +13,19 @@ public class VehiclePainter {
 	}
 	
 	public void paint(Vehicle vehicle) {
-		System.out.print("Vehicle "+vehicle);
-		
-		FactoryPosition position = context.layout.getPositionFor(vehicle.getLocation());
-		
-		if(vehicle.hasVehicleRequest()) {
-			System.out.print(" which has request");
-			VehicleRequest request = vehicle.getVehicleRequest();
-			
-			if(request.getFrom() != request.getTo()) {
-				System.out.println(" that is valid");
-				Trajectory trajectory = context.layout.getVehicleTrajectory(request.getFrom(), request.getTo());
-
-				double currentTime = context.replication.currentTime();
-				
-				double interpolation = (currentTime - request.getStartTimestamp()) / request.getDuration();
-				
-				if(interpolation > 1) {
-					interpolation = 1;
-				}
-				if(interpolation < 0) {
-					interpolation = 0;
-				}
-				
-				System.out.println(interpolation);
-				
-				position = trajectory.getInterpolated((float)interpolation);
-			}
-		}
-		
-		System.out.println();
-		
-		paint(position, vehicle);
+		paint(context.figureVehiclePosition(vehicle), vehicle);
 	}
 	
 	public void paint(FactoryPosition position, Vehicle vehicle) {
+		int x = context.view.transformX(position.getX());
+		int y = context.view.transformY(position.getY());
+		
 		context.graphics.setColor(Color.BLACK);
-		context.fillCircle(
-				context.view.transformX(position.getX()), 
-				context.view.transformY(position.getY()), 
-				5
-		);
+		context.fillCircle(x, y, 5);
+		
+		if(vehicle.hasRoll()) {
+			context.graphics.setColor(Color.orange);
+			context.fillCircle(x+2, y+2, 3);
+		}
 	}
 }
