@@ -346,7 +346,7 @@ public class ReplicationWindow extends javax.swing.JFrame
 
         craneTableScrollPane.setBackground(new java.awt.Color(255, 255, 255));
 
-        craneTable.setModel(new CraneTableModel());
+        craneTable.setModel(new CraneTableModel(simulation.getFactory().getCranes()));
         craneTable.setGridColor(new java.awt.Color(255, 255, 255));
         craneTableScrollPane.setViewportView(craneTable);
 
@@ -373,7 +373,7 @@ public class ReplicationWindow extends javax.swing.JFrame
 
         vehicleTableScrollPane.setBackground(new java.awt.Color(255, 255, 255));
 
-        vehicleTable.setModel(new VehicleTableModel());
+        vehicleTable.setModel(new VehicleTableModel(simulation.getFactory().getVehicles()));
         vehicleTable.setGridColor(new java.awt.Color(255, 255, 255));
         vehicleTableScrollPane.setViewportView(vehicleTable);
 
@@ -400,7 +400,7 @@ public class ReplicationWindow extends javax.swing.JFrame
 
         employeeTableScrollPane.setBackground(new java.awt.Color(255, 255, 255));
 
-        employeeTable.setModel(new EmployeeTableModel());
+        employeeTable.setModel(new EmployeeTableModel(simulation.getFactory().getEmployees()));
         employeeTable.setGridColor(new java.awt.Color(255, 255, 255));
         employeeTableScrollPane.setViewportView(employeeTable);
 
@@ -736,16 +736,9 @@ public class ReplicationWindow extends javax.swing.JFrame
 				selectedRollStorage.getRolls());
 		}
 
-		CraneTableModel.CURRENT_TIMESTAMP = timestamp;
-		((CraneTableModel) craneTable.getModel()).setValues(
-			simulation.getFactory().getCranes());
-
-		VehicleTableModel.CURRENT_TIMESTAMP = timestamp;
-		((VehicleTableModel) vehicleTable.getModel()).setValues(
-			simulation.getFactory().getVehicles());
-
-		((EmployeeTableModel) employeeTable.getModel()).setValues(
-			simulation.getFactory().getEmployees());
+		((CraneTableModel) craneTable.getModel()).onChangeList(timestamp);
+		((VehicleTableModel) vehicleTable.getModel()).onChangeList(timestamp);
+		((EmployeeTableModel) employeeTable.getModel()).onChangeList(timestamp);
 	}
 
 //	private void updateResults(double timestamp, Stats.ReplicationStatsSnapshot stats)

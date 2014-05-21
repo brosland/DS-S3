@@ -13,7 +13,7 @@ public class CraneTableModel extends AbstractTableModel
 		ID("ID")
 			{
 				@Override
-				public Object getValue(Crane crane)
+				public Object getValue(double timestamp, Crane crane)
 				{
 					return crane.getId();
 				}
@@ -21,7 +21,7 @@ public class CraneTableModel extends AbstractTableModel
 		STATE("Stav")
 			{
 				@Override
-				public Object getValue(Crane crane)
+				public Object getValue(double timestamp, Crane crane)
 				{
 					return crane.isBusy() ? "Zaneprázdnený" : "Voľný";
 				}
@@ -29,10 +29,10 @@ public class CraneTableModel extends AbstractTableModel
 		WORKING_TIME("Vyťaženie")
 			{
 				@Override
-				public Object getValue(Crane crane)
+				public Object getValue(double timestamp, Crane crane)
 				{
-					return String.format("%.2f%%", CURRENT_TIMESTAMP == 0f
-						? 0 : 100f * crane.getCurrentWorkingTime(CURRENT_TIMESTAMP) / CURRENT_TIMESTAMP);
+					return String.format("%.2f%%", timestamp != 0f
+						? 100f * crane.getCurrentWorkingTime(timestamp) / timestamp : 0);
 				}
 			};
 
@@ -48,21 +48,15 @@ public class CraneTableModel extends AbstractTableModel
 			return label;
 		}
 
-		public abstract Object getValue(Crane crane);
+		public abstract Object getValue(double timestamp, Crane crane);
 	}
 
-	public static double CURRENT_TIMESTAMP = 0f;
-	private List<Crane> cranes;
+	private final List<Crane> cranes;
+	private double timestamp = 0f;
 
-	public CraneTableModel()
-	{
-		this.cranes = new ArrayList<>();
-	}
-
-	public void setValues(List<Crane> cranes)
+	public CraneTableModel(List<Crane> cranes)
 	{
 		this.cranes = cranes;
-		onChangeList();
 	}
 
 	public Crane getValue(int rowIndex)
@@ -85,7 +79,7 @@ public class CraneTableModel extends AbstractTableModel
 	@Override
 	public Object getValueAt(int rowIndex, int columnIndex)
 	{
-		return getColumn(columnIndex).getValue(cranes.get(rowIndex));
+		return getColumn(columnIndex).getValue(timestamp, cranes.get(rowIndex));
 	}
 
 	@Override
@@ -105,8 +99,10 @@ public class CraneTableModel extends AbstractTableModel
 		return Column.values()[columnIndex];
 	}
 
-	public void onChangeList()
+	public void onChangeList(double timestamp)
 	{
+		this.timestamp = timestamp;
+
 		SwingUtilities.invokeLater(new Runnable()
 		{
 			@Override

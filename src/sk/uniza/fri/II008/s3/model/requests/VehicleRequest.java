@@ -2,32 +2,16 @@ package sk.uniza.fri.II008.s3.model.requests;
 
 import sk.uniza.fri.II008.s3.model.Navigation.Location;
 
-public class VehicleRequest
+public class VehicleRequest extends BaseRequest
 {
-	private final double startTimestamp, duration;
 	private final Location from, to;
 
 	public VehicleRequest(double startTimestamp, double duration, Location from, Location to)
 	{
-		this.startTimestamp = startTimestamp;
-		this.duration = duration;
+		super(startTimestamp, duration);
+
 		this.from = from;
 		this.to = to;
-	}
-
-	public double getStartTimestamp()
-	{
-		return startTimestamp;
-	}
-
-	public double getEndTimestamp()
-	{
-		return startTimestamp + duration;
-	}
-
-	public double getDuration()
-	{
-		return duration;
 	}
 
 	public Location getFrom()

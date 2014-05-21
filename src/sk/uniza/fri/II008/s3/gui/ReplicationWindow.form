@@ -366,7 +366,7 @@
                             <Component class="javax.swing.JTable" name="craneTable">
                               <Properties>
                                 <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-                                  <Connection code="new CraneTableModel()" type="code"/>
+                                  <Connection code="new CraneTableModel(simulation.getFactory().getCranes())" type="code"/>
                                 </Property>
                                 <Property name="gridColor" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
                                   <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -417,7 +417,7 @@
                             <Component class="javax.swing.JTable" name="vehicleTable">
                               <Properties>
                                 <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-                                  <Connection code="new VehicleTableModel()" type="code"/>
+                                  <Connection code="new VehicleTableModel(simulation.getFactory().getVehicles())" type="code"/>
                                 </Property>
                                 <Property name="gridColor" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
                                   <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -468,7 +468,7 @@
                             <Component class="javax.swing.JTable" name="employeeTable">
                               <Properties>
                                 <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-                                  <Connection code="new EmployeeTableModel()" type="code"/>
+                                  <Connection code="new EmployeeTableModel(simulation.getFactory().getEmployees())" type="code"/>
                                 </Property>
                                 <Property name="gridColor" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
                                   <Color blue="ff" green="ff" red="ff" type="rgb"/>

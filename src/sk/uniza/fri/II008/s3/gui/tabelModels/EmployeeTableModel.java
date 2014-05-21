@@ -13,7 +13,7 @@ public class EmployeeTableModel extends AbstractTableModel
 		ID("ID")
 			{
 				@Override
-				public Object getValue(Employee employee)
+				public Object getValue(double timestamp, Employee employee)
 				{
 					return employee.getId();
 				}
@@ -21,7 +21,7 @@ public class EmployeeTableModel extends AbstractTableModel
 		CURRENT_STORAGE("Sklad")
 			{
 				@Override
-				public Object getValue(Employee employee)
+				public Object getValue(double timestamp, Employee employee)
 				{
 					return employee.getCurrentStorage().getName();
 				}
@@ -29,9 +29,18 @@ public class EmployeeTableModel extends AbstractTableModel
 		STATE("Stav")
 			{
 				@Override
-				public Object getValue(Employee employee)
+				public Object getValue(double timestamp, Employee employee)
 				{
 					return employee.getState().label;
+				}
+			},
+		WORKING_TIME("Vyťaženie")
+			{
+				@Override
+				public Object getValue(double timestamp, Employee employee)
+				{
+					return String.format("%.2f%%", timestamp != 0f
+						? 100f * employee.getCurrentWorkingTime(timestamp) / timestamp : 0);
 				}
 			};
 
@@ -47,20 +56,15 @@ public class EmployeeTableModel extends AbstractTableModel
 			return label;
 		}
 
-		public abstract Object getValue(Employee employee);
+		public abstract Object getValue(double timestamp, Employee employee);
 	}
 
-	private List<Employee> employees;
+	private final List<Employee> employees;
+	public double timestamp = 0f;
 
-	public EmployeeTableModel()
-	{
-		this.employees = new ArrayList<>();
-	}
-
-	public void setValues(List<Employee> employees)
+	public EmployeeTableModel(List<Employee> employees)
 	{
 		this.employees = employees;
-		onChangeList();
 	}
 
 	public Employee getValue(int rowIndex)
@@ -83,7 +87,7 @@ public class EmployeeTableModel extends AbstractTableModel
 	@Override
 	public Object getValueAt(int rowIndex, int columnIndex)
 	{
-		return getColumn(columnIndex).getValue(employees.get(rowIndex));
+		return getColumn(columnIndex).getValue(timestamp, employees.get(rowIndex));
 	}
 
 	@Override
@@ -103,8 +107,10 @@ public class EmployeeTableModel extends AbstractTableModel
 		return Column.values()[columnIndex];
 	}
 
-	public void onChangeList()
+	public void onChangeList(double timestamp)
 	{
+		this.timestamp = timestamp;
+
 		SwingUtilities.invokeLater(new Runnable()
 		{
 			@Override

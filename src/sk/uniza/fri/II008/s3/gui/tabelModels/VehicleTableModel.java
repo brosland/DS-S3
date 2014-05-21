@@ -1,6 +1,5 @@
 package sk.uniza.fri.II008.s3.gui.tabelModels;
 
-import java.util.ArrayList;
 import java.util.List;
 import javax.swing.SwingUtilities;
 import javax.swing.table.AbstractTableModel;
@@ -15,7 +14,7 @@ public class VehicleTableModel extends AbstractTableModel
 		ID("ID")
 			{
 				@Override
-				public Object getValue(Vehicle vehicle)
+				public Object getValue(double timestamp, Vehicle vehicle)
 				{
 					return vehicle.getId();
 				}
@@ -23,52 +22,47 @@ public class VehicleTableModel extends AbstractTableModel
 		SPEED("Rýchlosť")
 			{
 				@Override
-				public Object getValue(Vehicle vehicle)
+				public Object getValue(double timestamp, Vehicle vehicle)
 				{
 					return String.format("%.1fkm/h", vehicle.getSpeed());
-				}
-			},
-		WORKING_TIME("Vyťaženie")
-			{
-				@Override
-				public Object getValue(Vehicle vehicle)
-				{
-					return String.format("%.2f%%", CURRENT_TIMESTAMP == 0f
-						? 0 : 100f * vehicle.getCurrentWorkingTime(CURRENT_TIMESTAMP) / CURRENT_TIMESTAMP);
-				}
-			},
-		LOCATION("Pozícia")
-			{
-				@Override
-				public Object getValue(Vehicle vehicle)
-				{
-					return vehicle.getLocation();
-				}
-			},
-		ROLL("Rolka")
-			{
-				@Override
-				public Object getValue(Vehicle vehicle)
-				{
-					return vehicle.hasRoll() ? vehicle.getRoll() : "";
 				}
 			},
 		STATE("Stav")
 			{
 				@Override
-				public Object getValue(Vehicle vehicle)
+				public Object getValue(double timestamp, Vehicle vehicle)
 				{
 					if (vehicle.hasVehicleRequest())
 					{
 						VehicleRequest vehicleRequest = vehicle.getVehicleRequest();
 
-						return String.format("Presun z %s do %s (%s)", vehicleRequest.getFrom(),
-							vehicleRequest.getTo(), Utils.formatTime(vehicleRequest.getEndTimestamp()));
+						if (vehicle.hasRoll())
+						{
+							return String.format("Presun rolky %s z %s do %s (%s)",
+								vehicle.getRoll(), vehicleRequest.getFrom(), vehicleRequest.getTo(),
+								Utils.formatTime(vehicleRequest.getEndTimestamp()));
+						}
+						else
+						{
+							return String.format("Presun z %s do %s (%s)",
+								vehicleRequest.getFrom(), vehicleRequest.getTo(),
+								Utils.formatTime(vehicleRequest.getEndTimestamp()));
+						}
 					}
 					else
 					{
-						return vehicle.isBusy() ? "Obsadené" : "Voľné";
+						return String.format(vehicle.isBusy() ? "Obsadené (%s)" : "Voľné (%s)",
+							vehicle.getLocation());
 					}
+				}
+			},
+		WORKING_TIME("Vyťaženie")
+			{
+				@Override
+				public Object getValue(double timestamp, Vehicle vehicle)
+				{
+					return String.format("%.2f%%", timestamp != 0f
+						? 100f * vehicle.getCurrentWorkingTime(timestamp) / timestamp : 0);
 				}
 			};
 
@@ -84,21 +78,15 @@ public class VehicleTableModel extends AbstractTableModel
 			return label;
 		}
 
-		public abstract Object getValue(Vehicle vehicle);
+		public abstract Object getValue(double timestamp, Vehicle vehicle);
 	}
 
-	public static double CURRENT_TIMESTAMP = 0f;
-	private List<Vehicle> vehicles;
+	private final List<Vehicle> vehicles;
+	private double timestamp = 0f;
 
-	public VehicleTableModel()
-	{
-		this.vehicles = new ArrayList<>();
-	}
-
-	public void setValues(List<Vehicle> vehicles)
+	public VehicleTableModel(List<Vehicle> vehicles)
 	{
 		this.vehicles = vehicles;
-		onChangeList();
 	}
 
 	public Vehicle getValue(int rowIndex)
@@ -121,7 +109,7 @@ public class VehicleTableModel extends AbstractTableModel
 	@Override
 	public Object getValueAt(int rowIndex, int columnIndex)
 	{
-		return getColumn(columnIndex).getValue(vehicles.get(rowIndex));
+		return getColumn(columnIndex).getValue(timestamp, vehicles.get(rowIndex));
 	}
 
 	@Override
@@ -141,8 +129,10 @@ public class VehicleTableModel extends AbstractTableModel
 		return Column.values()[columnIndex];
 	}
 
-	public void onChangeList()
+	public void onChangeList(double timestamp)
 	{
+		this.timestamp = timestamp;
+
 		SwingUtilities.invokeLater(new Runnable()
 		{
 			@Override
