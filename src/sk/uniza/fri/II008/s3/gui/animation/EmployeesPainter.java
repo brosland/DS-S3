@@ -23,7 +23,7 @@ public class EmployeesPainter {
 		int startX = centerX - (employeeCount/2)*oneOffset;
 		int startY = centerY + 15;
 		
-		context.graphics.setColor(Color.green.darker());
+		context.graphics.setColor(Color.pink.darker());
 		
 		for(int i=0; i<employeeCount; i++)
 		{

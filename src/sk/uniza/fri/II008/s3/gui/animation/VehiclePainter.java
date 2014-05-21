@@ -24,7 +24,7 @@ public class VehiclePainter {
 		context.fillCircle(x, y, 5);
 		
 		if(vehicle.hasRoll()) {
-			context.graphics.setColor(Color.orange);
+			context.graphics.setColor(context.getRollColor(vehicle.getRoll().getType()));
 			context.fillCircle(x+2, y+2, 3);
 		}
 	}

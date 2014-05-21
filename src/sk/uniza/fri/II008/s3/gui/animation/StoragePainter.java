@@ -31,6 +31,7 @@ public class StoragePainter {
 		context.graphics.fillRect(centerX-width/2, centerY-height/2, fillWidth, height);
 		
 		context.graphics.setColor(Color.BLACK);
-		context.graphics.drawString(String.valueOf(storage.getRolls().size()), centerX, centerY);
+		context.graphics.drawString(storage.getName(), centerX, centerY-5);
+		context.graphics.drawString(String.valueOf(storage.getRolls().size()), centerX, centerY+5);
 	}
 }

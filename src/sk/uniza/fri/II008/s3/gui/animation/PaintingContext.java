@@ -1,5 +1,6 @@
 package sk.uniza.fri.II008.s3.gui.animation;
 
+import java.awt.Color;
 import java.awt.Graphics2D;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -78,6 +79,16 @@ public class PaintingContext {
 		for(Crane crane : factory.getCranes())
 		{
 			cranePainter.paint(crane);
+		}
+	}
+	
+	protected Color getRollColor(Roll.Type rollType)
+	{
+		switch(rollType) {
+		case A: return Color.red;
+		case B: return Color.green;
+		case C: return Color.blue;
+		default: throw new RuntimeException("Unknown roll type "+rollType);
 		}
 	}
 	

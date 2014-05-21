@@ -31,6 +31,6 @@ public class ElevatorPainter {
 		context.graphics.fillRect(centerX-8, centerY-8, (int)Math.round((float)16*elevator.getFilling()), 16);
 		
 		context.graphics.setColor(Color.BLACK);
-		context.graphics.drawString(String.valueOf(elevator.getRolls().size()), centerX, centerY);
+		context.graphics.drawString(String.valueOf(elevator.getRolls().size()), centerX-8, centerY+4);
 	}
 }
