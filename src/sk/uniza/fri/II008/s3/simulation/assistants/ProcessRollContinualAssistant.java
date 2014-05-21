@@ -7,7 +7,6 @@ import sk.uniza.fri.II008.s3.FactorySimulation;
 import sk.uniza.fri.II008.s3.simulation.ComponentType;
 import sk.uniza.fri.II008.s3.simulation.MessageType;
 import sk.uniza.fri.II008.s3.simulation.messages.ProcessRollMessage;
-import sk.uniza.fri.II008.s3.simulation.messages.RollMessage;
 
 public class ProcessRollContinualAssistant extends BaseContinualAssistant
 {
@@ -32,7 +31,6 @@ public class ProcessRollContinualAssistant extends BaseContinualAssistant
 		{
 			case MessageType.start:
 				message.setCode(MessageType.PROCESS_ROLL_DONE);
-
 				hold(processRollDurationGen.nextValue(), message);
 
 				if (getFactorySimulation().isEnabledLogging())

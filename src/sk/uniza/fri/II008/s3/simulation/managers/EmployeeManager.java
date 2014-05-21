@@ -81,15 +81,17 @@ public class EmployeeManager extends BaseManager
 
 	private void onProcessRollDoneMessageReceived(ProcessRollMessage processRollMessage)
 	{
+		Roll roll = processRollMessage.getRollMessage().getRoll();
+		Employee employee = processRollMessage.getEmployee();
+
 		if (getFactorySimulation().isEnabledLogging())
 		{
-			getFactoryReplication().log(String.format(
-				"EmployeeManager[PROCESS_ROLL_DONE]\n - employee %s processed roll %s",
-				processRollMessage.getEmployee(), processRollMessage.getRollMessage().getRoll()));
+			getFactoryReplication().log(String.format("EmployeeManager[PROCESS_ROLL_DONE]\n"
+				+ " - employee %s processed roll %s", employee, roll));
 		}
 
-		processRollMessage.getRollMessage().getRoll().setState(Roll.State.READY);
-		processRollMessage.getEmployee().setState(Employee.State.FREE);
+		employee.setState(Employee.State.FREE);
+		roll.setState(roll.getType() == Roll.Type.C ? Roll.State.READY : Roll.State.PROCESSED);
 
 		RollMessage rollMessage = processRollMessage.getRollMessage();
 		rollMessage.setCode(MessageType.PROCESS_ROLL_DONE);

@@ -2,7 +2,6 @@ package sk.uniza.fri.II008.s3.simulation.managers;
 
 import OSPABA.Agent;
 import OSPABA.MessageForm;
-import java.util.List;
 import sk.uniza.fri.II008.s3.FactorySimulation.Generator;
 import sk.uniza.fri.II008.s3.model.*;
 import sk.uniza.fri.II008.s3.simulation.ComponentType;
@@ -68,7 +67,21 @@ public class FactoryManager extends BaseManager
 			getFactoryReplication().log("FactoryManager[INIT]");
 		}
 
-		List<ProcessingStorage> processingStorages = getFactory().getProcessingStorages();
+		// init employees
+		for (ProcessingStorage processingStorage : getFactory().getProcessingStorages())
+		{
+			for (Roll roll : processingStorage.getRolls(Roll.State.UNPROCESSED))
+			{
+				createRequestForProcessRoll(roll);
+			}
+		}
+
+		// init transfering processed rolls to cooling storage
+		ProcessingStorage[] processingStorages = new ProcessingStorage[]
+		{
+			getFactory().getProcessingStorage(Roll.Type.A),
+			getFactory().getProcessingStorage(Roll.Type.B)
+		};
 		Storage coolingStorage = getFactory().getCoolingStorage();
 
 		while (!coolingStorage.isFull())
@@ -83,26 +96,19 @@ public class FactoryManager extends BaseManager
 					processingStorage = ps;
 				}
 			}
-
-			if (processingStorage != null)
-			{
-				Roll roll = processingStorage.getRoll(Roll.State.PROCESSED);
-				coolingStorage.getReservation(roll);
-				transportRoll(roll, processingStorage, coolingStorage);
-			}
-			else
+			
+			if (processingStorage == null)
 			{
 				break;
 			}
+
+			Roll roll = processingStorage.getRoll(Roll.State.PROCESSED);
+			coolingStorage.getReservation(roll);
+			transportRoll(roll, processingStorage, coolingStorage);
 		}
 
-		for (ProcessingStorage processingStorage : processingStorages)
-		{
-			for (Roll roll : processingStorage.getRolls(Roll.State.UNPROCESSED))
-			{
-				createRequestForProcessRoll(roll);
-			}
-		}
+		// init exporting
+		transportReadyRollsToExportElevator();
 	}
 
 	private void onImportMessageReceived(RollMessage rollMessage)
@@ -151,13 +157,13 @@ public class FactoryManager extends BaseManager
 				}
 			}
 		}
-		else // výber skladu (S1, S2, S3) z ktorého sa presunie rolka do tohto (chladiacého) skladu
+		else // výber skladu (S1, S2) z ktorého sa presunie rolka do tohto (chladiacého) skladu
 		{
 			for (Roll.Type rollType : Roll.Type.values())
 			{
 				ProcessingStorage storage = getFactory().getProcessingStorage(rollType);
 
-				if (storage.hasRoll(Roll.State.PROCESSED)
+				if (rollType != Roll.Type.C && storage.hasRoll(Roll.State.PROCESSED)
 					&& (from == null || from.getFilling() < storage.getFilling()))
 				{
 					from = storage;
@@ -208,12 +214,20 @@ public class FactoryManager extends BaseManager
 				"FactoryManager[PROCESS_ROLL_DONE]\n - roll %s processed", rollMessage.getRoll()));
 		}
 
-		Storage storage = getFactory().getCoolingStorage();
 		Roll roll = rollMessage.getRoll();
 
-		if (storage.getReservation(roll))
+		if (roll.getState() == Roll.State.READY)
 		{
-			transportRoll(roll, roll.getRollStorage(), storage);
+			onPrepareRollToExportDoneMessageReceived(rollMessage);
+		}
+		else
+		{
+			Storage storage = getFactory().getCoolingStorage();
+
+			if (storage.getReservation(roll))
+			{
+				transportRoll(roll, roll.getRollStorage(), storage);
+			}
 		}
 	}
 
@@ -256,17 +270,7 @@ public class FactoryManager extends BaseManager
 			}
 		}
 
-		Storage storage = getFactory().getCoolingStorage();
-
-		if (storage.hasRoll(Roll.State.READY))
-		{
-			Roll roll = storage.getRoll(Roll.State.READY);
-
-			if (elevator.getReservation(roll))
-			{
-				transportRoll(storage.getRoll(Roll.State.READY), storage, elevator);
-			}
-		}
+		transportReadyRollsToExportElevator();
 	}
 
 	private void transportRoll(Roll roll, RollStorage from, RollStorage to)
@@ -288,5 +292,38 @@ public class FactoryManager extends BaseManager
 		rollMessage.setAddressee(_mySim.findAgent(ComponentType.EMPLOYEE_AGENT));
 
 		request(rollMessage);
+	}
+	
+	private void transportReadyRollsToExportElevator()
+	{
+		Elevator elevator = getFactory().getExportElevator();
+		
+		while (!elevator.isFull())
+		{
+			Storage[] storages = new Storage[]
+			{
+				getFactory().getProcessingStorage(Roll.Type.C),
+				getFactory().getCoolingStorage()
+			};
+			Storage storage = null;
+
+			for (Storage s : storages)
+			{
+				if (s.hasRoll(Roll.State.READY)
+					&& (storage == null || storage.getFilling() < s.getFilling()))
+				{
+					storage = s;
+				}
+			}
+			
+			if (storage == null)
+			{
+				break;
+			}
+
+			Roll roll = storage.getRoll(Roll.State.READY);
+			elevator.getReservation(roll);
+			transportRoll(storage.getRoll(Roll.State.READY), storage, elevator);
+		}
 	}
 }
