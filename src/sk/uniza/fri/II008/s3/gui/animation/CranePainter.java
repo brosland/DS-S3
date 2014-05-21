@@ -31,16 +31,7 @@ public class CranePainter {
 		
 		DirectTrajectory trajectory = new DirectTrajectory(from, to);
 		double amount = (context.replication.currentTime() - request.getStartTimestamp() ) / request.getDuration();
-		
-		if(amount > 1)
-		{
-			amount = 1;
-		}
-		
-		if(amount < 0)
-		{
-			amount = 0;
-		}
+		amount = Util.clip(amount, 0, 1);
 		
 		FactoryPosition rollPosition = trajectory.getInterpolated((float)amount);
 		int rollX = context.view.transformX(rollPosition.getX());

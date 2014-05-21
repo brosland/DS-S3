@@ -94,14 +94,14 @@ public class PaintingContext {
 	
 	private void paintEmployees()
 	{
-		HashMap<Storage, Integer> employeesInStorages = new HashMap<>();
+		HashMap<Storage, LinkedList<Employee>> employeesInStorages = new HashMap<>();
 		for(Employee employee : factory.getEmployees())
 		{
 			Storage storage = employee.getCurrentStorage();
 			if(!employeesInStorages.containsKey(storage)) {
-				employeesInStorages.put(storage, 0);
+				employeesInStorages.put(storage, new LinkedList<Employee>());
 			}
-			employeesInStorages.put(storage, employeesInStorages.get(storage)+1);
+			employeesInStorages.get(storage).add(employee);
 		}
 		
 		for(Storage storage : employeesInStorages.keySet())
@@ -154,13 +154,7 @@ public class PaintingContext {
 				double currentTime = replication.currentTime();
 				
 				double interpolation = (currentTime - request.getStartTimestamp()) / request.getDuration();
-				
-				if(interpolation > 1) {
-					interpolation = 1;
-				}
-				if(interpolation < 0) {
-					interpolation = 0;
-				}
+				interpolation = Util.clip(interpolation, 0, 1);
 				
 				position = trajectory.getInterpolated((float)interpolation);
 			}
