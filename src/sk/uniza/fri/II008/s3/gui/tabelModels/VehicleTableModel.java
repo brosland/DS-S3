@@ -24,7 +24,7 @@ public class VehicleTableModel extends AbstractTableModel
 				@Override
 				public Object getValue(double timestamp, Vehicle vehicle)
 				{
-					return String.format("%.1fkm/h", vehicle.getSpeed());
+					return String.format("%.1f km/h", vehicle.getSpeed());
 				}
 			},
 		STATE("Stav")
@@ -61,7 +61,7 @@ public class VehicleTableModel extends AbstractTableModel
 				@Override
 				public Object getValue(double timestamp, Vehicle vehicle)
 				{
-					return String.format("%.2f%%", timestamp != 0f
+					return String.format("%.2f %%", timestamp != 0f
 						? 100f * vehicle.getCurrentWorkingTime(timestamp) / timestamp : 0);
 				}
 			};

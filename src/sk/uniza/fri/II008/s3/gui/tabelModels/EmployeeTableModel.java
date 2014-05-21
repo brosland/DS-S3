@@ -1,6 +1,5 @@
 package sk.uniza.fri.II008.s3.gui.tabelModels;
 
-import java.util.ArrayList;
 import java.util.List;
 import javax.swing.SwingUtilities;
 import javax.swing.table.AbstractTableModel;
@@ -39,7 +38,7 @@ public class EmployeeTableModel extends AbstractTableModel
 				@Override
 				public Object getValue(double timestamp, Employee employee)
 				{
-					return String.format("%.2f%%", timestamp != 0f
+					return String.format("%.2f %%", timestamp != 0f
 						? 100f * employee.getCurrentWorkingTime(timestamp) / timestamp : 0);
 				}
 			};
