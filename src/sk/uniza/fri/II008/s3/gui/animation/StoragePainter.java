@@ -20,7 +20,9 @@ public class StoragePainter {
 		int centerX = context.view.transformX(position.getX());
 		int centerY = context.view.transformY(position.getY());
 		
-		int fillWidth = Math.round((float)(width*storage.getFilling()));
+		float filling = (float)storage.getRolls().size() / storage.getCapacity();
+		
+		int fillWidth = Math.round(width*filling);
 		
 		context.graphics.setColor(Color.BLACK);
 		context.graphics.fillRect(centerX-margin-width/2, centerY-margin-height/2, width+2*margin, height+2*margin);

@@ -31,7 +31,9 @@ public class ElevatorPainter {
 		context.graphics.setColor(Color.WHITE);
 		context.graphics.fillRect(centerX-width/2, centerY-height/2, width, height);
 		
-		int fillingWidth = (int)Math.round(width*elevator.getFilling());
+		float filling = (float)elevator.getRolls().size() / elevator.getCapacity();
+		
+		int fillingWidth = (int)Math.round(width*filling);
 		
 		context.graphics.setColor(Color.YELLOW);
 		context.graphics.fillRect(centerX-width/2, centerY-height/2, fillingWidth, height);
