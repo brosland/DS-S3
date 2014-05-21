@@ -6,6 +6,7 @@ public class Crane
 {
 	public static int LAST_ID = 0;
 	private final int id;
+	private double workingTime;
 	private boolean busy = false;
 	private CraneRequest craneRequest = null;
 
@@ -17,6 +18,21 @@ public class Crane
 	public int getId()
 	{
 		return id;
+	}
+
+	public double getWorkingTime()
+	{
+		return workingTime;
+	}
+
+	public double getCurrentWorkingTime(double currentTimestamp)
+	{
+		if (hasCraneRequest() && craneRequest.getEndTimestamp() > currentTimestamp)
+		{
+			return workingTime - (craneRequest.getEndTimestamp() - currentTimestamp);
+		}
+
+		return workingTime;
 	}
 
 	public synchronized boolean isBusy()
@@ -42,6 +58,7 @@ public class Crane
 	public void setCraneRequest(CraneRequest craneRequest)
 	{
 		this.craneRequest = craneRequest;
+		workingTime += craneRequest.getDuration();
 	}
 
 	public void removeCraneRequest()
@@ -57,6 +74,8 @@ public class Crane
 
 	public void reset()
 	{
+		workingTime = 0;
 		busy = false;
+		craneRequest = null;
 	}
 }

@@ -25,6 +25,15 @@ public class CraneTableModel extends AbstractTableModel
 				{
 					return crane.isBusy() ? "Zaneprázdnený" : "Voľný";
 				}
+			},
+		WORKING_TIME("Vyťaženie")
+			{
+				@Override
+				public Object getValue(Crane crane)
+				{
+					return String.format("%.2f%%", CURRENT_TIMESTAMP == 0f
+						? 0 : 100f * crane.getCurrentWorkingTime(CURRENT_TIMESTAMP) / CURRENT_TIMESTAMP);
+				}
 			};
 
 		private final String label;
@@ -42,6 +51,7 @@ public class CraneTableModel extends AbstractTableModel
 		public abstract Object getValue(Crane crane);
 	}
 
+	public static double CURRENT_TIMESTAMP = 0f;
 	private List<Crane> cranes;
 
 	public CraneTableModel()

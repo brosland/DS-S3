@@ -25,31 +25,39 @@ public class ProcessRollContinualAssistant extends BaseContinualAssistant
 	@Override
 	public void processMessage(MessageForm message)
 	{
-		ProcessRollMessage processRollMessage = (ProcessRollMessage) message;
-
 		switch (message.code())
 		{
 			case MessageType.start:
-				message.setCode(MessageType.PROCESS_ROLL_DONE);
-				hold(processRollDurationGen.nextValue(), message);
-
-				if (getFactorySimulation().isEnabledLogging())
-				{
-					getFactoryReplication().log(String.format(
-						"ProcessRollContinualAssistant[start]\n - employee %s processing roll %s",
-						processRollMessage.getEmployee(), processRollMessage.getRollMessage().getRoll()));
-				}
+				onStartMessageReceived((ProcessRollMessage) message);
 				break;
 			case MessageType.PROCESS_ROLL_DONE:
-				if (getFactorySimulation().isEnabledLogging())
-				{
-					getFactoryReplication().log(String.format(
-						"ProcessRollContinualAssistant[PROCESS_ROLL_DONE]\n - roll %s processed",
-						processRollMessage.getRollMessage().getRoll()));
-				}
-
-				assistantFinished(message);
+				onProcessRollDoneMessageReceived((ProcessRollMessage) message);
 				break;
 		}
+	}
+
+	private void onStartMessageReceived(ProcessRollMessage processRollMessage)
+	{
+		processRollMessage.setCode(MessageType.PROCESS_ROLL_DONE);
+		hold(processRollDurationGen.nextValue(), processRollMessage);
+
+		if (getFactorySimulation().isEnabledLogging())
+		{
+			getFactoryReplication().log(String.format(
+				"ProcessRollContinualAssistant[start]\n - employee %s processing roll %s",
+				processRollMessage.getEmployee(), processRollMessage.getRoll()));
+		}
+	}
+
+	private void onProcessRollDoneMessageReceived(ProcessRollMessage processRollMessage)
+	{
+		if (getFactorySimulation().isEnabledLogging())
+		{
+			getFactoryReplication().log(String.format(
+				"ProcessRollContinualAssistant[PROCESS_ROLL_DONE]\n - roll %s processed",
+				processRollMessage.getRoll()));
+		}
+
+		assistantFinished(processRollMessage);
 	}
 }

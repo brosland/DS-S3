@@ -681,8 +681,11 @@ public class ReplicationWindow extends javax.swing.JFrame
 				setTitle(String.format("Replikácia %d / %d",
 					simulation.getCurrentReplicationId(), simulation.getReplicationCount()));
 
-				updateTimeProgressBar();
-				updateTables();
+				double timestamp = simulation.getState() == State.STOPPED
+					? 0 : simulation.getCurrentReplication().getTimestamp();
+				
+				updateTimeProgressBar(timestamp);
+				updateTables(timestamp);
 
 				allowLogsCheckBox.setSelected(simulation.isEnabledLogging());
 
@@ -691,7 +694,7 @@ public class ReplicationWindow extends javax.swing.JFrame
 		});
 	}
 
-	private void updateTimeProgressBar()
+	private void updateTimeProgressBar(double timestamp)
 	{
 		if (simulation.getState() == State.STOPPED)
 		{
@@ -699,17 +702,16 @@ public class ReplicationWindow extends javax.swing.JFrame
 			return;
 		}
 
-		int timestamp = (int) simulation.getCurrentReplication().getTimestamp();
 		int maxTimestamp = (int) simulation.getMaxReplicationTimestamp();
 
 		timeProgressBar.setMaximum(maxTimestamp);
-		timeProgressBar.setValue(timestamp);
+		timeProgressBar.setValue((int) timestamp);
 		timeProgressBar.setString(String.format("%s / %s",
 			Utils.formatTime(timestamp), Utils.formatTime(maxTimestamp)));
 		timeProgressBar.setStringPainted(true);
 	}
 
-	private void updateTables()
+	private void updateTables(double timestamp)
 	{
 		final int selectedRow = rollStorageTable.getSelectedRow();
 
@@ -734,9 +736,11 @@ public class ReplicationWindow extends javax.swing.JFrame
 				selectedRollStorage.getRolls());
 		}
 
+		CraneTableModel.CURRENT_TIMESTAMP = timestamp;
 		((CraneTableModel) craneTable.getModel()).setValues(
 			simulation.getFactory().getCranes());
 
+		VehicleTableModel.CURRENT_TIMESTAMP = timestamp;
 		((VehicleTableModel) vehicleTable.getModel()).setValues(
 			simulation.getFactory().getVehicles());
 

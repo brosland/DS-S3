@@ -9,11 +9,10 @@ import sk.uniza.fri.II008.s3.model.Roll;
 import sk.uniza.fri.II008.s3.simulation.ComponentType;
 import sk.uniza.fri.II008.s3.simulation.MessageType;
 import sk.uniza.fri.II008.s3.simulation.messages.ProcessRollMessage;
-import sk.uniza.fri.II008.s3.simulation.messages.RollMessage;
 
 public class EmployeeManager extends BaseManager
 {
-	private final SimQueue<RollMessage> requestQueue;
+	private final SimQueue<ProcessRollMessage> requestQueue;
 
 	public EmployeeManager(Agent agent)
 	{
@@ -31,7 +30,7 @@ public class EmployeeManager extends BaseManager
 		switch (message.code())
 		{
 			case MessageType.PROCESS_ROLL:
-				onProcessRollMessageReceived((RollMessage) message);
+				onProcessRollMessageReceived((ProcessRollMessage) message);
 				break;
 			case MessageType.finish:
 				message.setCode(MessageType.PROCESS_ROLL_DONE);
@@ -40,12 +39,13 @@ public class EmployeeManager extends BaseManager
 		}
 	}
 
-	private void onProcessRollMessageReceived(RollMessage rollMessage)
+	private void onProcessRollMessageReceived(ProcessRollMessage processRollMessage)
 	{
+		Roll roll = processRollMessage.getRoll();
+
 		if (getFactorySimulation().isEnabledLogging())
 		{
-			getFactoryReplication().log(String.format(
-				"EmployeeManager[PROCESS_ROLL]\n - roll %s", rollMessage.getRoll()));
+			getFactoryReplication().log(String.format("EmployeeManager[PROCESS_ROLL]\n - roll %s", roll));
 		}
 
 		Employee employee = null;
@@ -61,13 +61,12 @@ public class EmployeeManager extends BaseManager
 
 		if (employee != null)
 		{
-			employee.setState(Employee.State.BUSY);
-			employee.setCurrentStorage((ProcessingStorage) rollMessage.getRoll().getRollStorage());
-			rollMessage.getRoll().setState(Roll.State.PROCESSING);
+			roll.setState(Roll.State.PROCESSING);
 
-			ProcessRollMessage processRollMessage = new ProcessRollMessage(
-				_mySim, employee, rollMessage);
-			processRollMessage.setCode(MessageType.PROCESS_ROLL);
+			employee.setState(Employee.State.BUSY);
+			employee.setCurrentStorage((ProcessingStorage) roll.getRollStorage());
+
+			processRollMessage.setEmployee(employee);
 			processRollMessage.setAddressee(_myAgent.findAssistant(
 				ComponentType.PROCESS_ROLL_CONTINUAL_ASSISTANT));
 
@@ -75,13 +74,13 @@ public class EmployeeManager extends BaseManager
 		}
 		else
 		{
-			requestQueue.add(rollMessage);
+			requestQueue.add(processRollMessage);
 		}
 	}
 
 	private void onProcessRollDoneMessageReceived(ProcessRollMessage processRollMessage)
 	{
-		Roll roll = processRollMessage.getRollMessage().getRoll();
+		Roll roll = processRollMessage.getRoll();
 		Employee employee = processRollMessage.getEmployee();
 
 		if (getFactorySimulation().isEnabledLogging())
@@ -93,9 +92,7 @@ public class EmployeeManager extends BaseManager
 		employee.setState(Employee.State.FREE);
 		roll.setState(roll.getType() == Roll.Type.C ? Roll.State.READY : Roll.State.PROCESSED);
 
-		RollMessage rollMessage = processRollMessage.getRollMessage();
-		rollMessage.setCode(MessageType.PROCESS_ROLL_DONE);
-		response(rollMessage);
+		response(processRollMessage);
 
 		if (!requestQueue.isEmpty())
 		{

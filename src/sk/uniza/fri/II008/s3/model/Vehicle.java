@@ -10,6 +10,7 @@ public class Vehicle implements RollStorable
 	private final double speed;
 	private Location location;
 	private boolean busy = false;
+	private double workingTime;
 	private Roll roll = null;
 	private VehicleRequest vehicleRequest = null;
 
@@ -18,6 +19,7 @@ public class Vehicle implements RollStorable
 		this.id = ++LAST_ID;
 		this.speed = speed;
 		this.location = location;
+		this.workingTime = 0;
 	}
 
 	public int getId()
@@ -28,6 +30,21 @@ public class Vehicle implements RollStorable
 	public double getSpeed()
 	{
 		return speed;
+	}
+
+	public double getWorkingTime()
+	{
+		return workingTime;
+	}
+
+	public double getCurrentWorkingTime(double currentTimestamp)
+	{
+		if (hasVehicleRequest() && vehicleRequest.getEndTimestamp() > currentTimestamp)
+		{
+			return workingTime - (vehicleRequest.getEndTimestamp() - currentTimestamp);
+		}
+
+		return workingTime;
 	}
 
 	public synchronized boolean isBusy()
@@ -53,6 +70,7 @@ public class Vehicle implements RollStorable
 	public void setVehicleRequest(VehicleRequest vehicleRequest)
 	{
 		this.vehicleRequest = vehicleRequest;
+		workingTime += vehicleRequest.getDuration();
 	}
 
 	public void removeVehicleRequest()
@@ -112,7 +130,9 @@ public class Vehicle implements RollStorable
 
 	public void reset()
 	{
+		workingTime = 0;
 		busy = false;
 		roll = null;
+		vehicleRequest = null;
 	}
 }

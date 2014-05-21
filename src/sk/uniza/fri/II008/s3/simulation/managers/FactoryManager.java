@@ -7,6 +7,7 @@ import sk.uniza.fri.II008.s3.model.*;
 import sk.uniza.fri.II008.s3.simulation.ComponentType;
 import sk.uniza.fri.II008.s3.simulation.generators.ImportElevatorGenerator;
 import sk.uniza.fri.II008.s3.simulation.MessageType;
+import sk.uniza.fri.II008.s3.simulation.messages.ProcessRollMessage;
 import sk.uniza.fri.II008.s3.simulation.messages.RollMessage;
 import sk.uniza.fri.II008.s3.simulation.messages.StorageMessage;
 import sk.uniza.fri.II008.s3.simulation.messages.TransportRollMessage;
@@ -48,7 +49,7 @@ public class FactoryManager extends BaseManager
 				onTransportRollDoneMessage((TransportRollMessage) message);
 				break;
 			case MessageType.PROCESS_ROLL_DONE:
-				onProcessRollDoneReceived((RollMessage) message);
+				onProcessRollDoneReceived((ProcessRollMessage) message);
 				break;
 			case MessageType.finish:
 				message.setCode(MessageType.PREPARE_ROLL_TO_EXPORT_DONE);
@@ -206,19 +207,19 @@ public class FactoryManager extends BaseManager
 		}
 	}
 
-	private void onProcessRollDoneReceived(RollMessage rollMessage)
+	private void onProcessRollDoneReceived(ProcessRollMessage processRollMessage)
 	{
 		if (getFactorySimulation().isEnabledLogging())
 		{
 			getFactoryReplication().log(String.format(
-				"FactoryManager[PROCESS_ROLL_DONE]\n - roll %s processed", rollMessage.getRoll()));
+				"FactoryManager[PROCESS_ROLL_DONE]\n - roll %s processed", processRollMessage.getRoll()));
 		}
 
-		Roll roll = rollMessage.getRoll();
+		Roll roll = processRollMessage.getRoll();
 
 		if (roll.getState() == Roll.State.READY)
 		{
-			onPrepareRollToExportDoneMessageReceived(rollMessage);
+			onPrepareRollToExportDoneMessageReceived(processRollMessage);
 		}
 		else
 		{
@@ -287,11 +288,11 @@ public class FactoryManager extends BaseManager
 
 	private void createRequestForProcessRoll(Roll roll)
 	{
-		RollMessage rollMessage = new RollMessage(_mySim, roll);
-		rollMessage.setCode(MessageType.PROCESS_ROLL);
-		rollMessage.setAddressee(_mySim.findAgent(ComponentType.EMPLOYEE_AGENT));
+		ProcessRollMessage processRollMessage = new ProcessRollMessage(_mySim, roll);
+		processRollMessage.setCode(MessageType.PROCESS_ROLL);
+		processRollMessage.setAddressee(_mySim.findAgent(ComponentType.EMPLOYEE_AGENT));
 
-		request(rollMessage);
+		request(processRollMessage);
 	}
 	
 	private void transportReadyRollsToExportElevator()

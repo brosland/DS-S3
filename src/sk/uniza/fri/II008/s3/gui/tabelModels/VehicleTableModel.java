@@ -20,12 +20,21 @@ public class VehicleTableModel extends AbstractTableModel
 					return vehicle.getId();
 				}
 			},
-		SPEED("Rýchlosť (km/h)")
+		SPEED("Rýchlosť")
 			{
 				@Override
 				public Object getValue(Vehicle vehicle)
 				{
-					return String.format("%.1f", vehicle.getSpeed());
+					return String.format("%.1fkm/h", vehicle.getSpeed());
+				}
+			},
+		WORKING_TIME("Vyťaženie")
+			{
+				@Override
+				public Object getValue(Vehicle vehicle)
+				{
+					return String.format("%.2f%%", CURRENT_TIMESTAMP == 0f
+						? 0 : 100f * vehicle.getCurrentWorkingTime(CURRENT_TIMESTAMP) / CURRENT_TIMESTAMP);
 				}
 			},
 		LOCATION("Pozícia")
@@ -78,6 +87,7 @@ public class VehicleTableModel extends AbstractTableModel
 		public abstract Object getValue(Vehicle vehicle);
 	}
 
+	public static double CURRENT_TIMESTAMP = 0f;
 	private List<Vehicle> vehicles;
 
 	public VehicleTableModel()
