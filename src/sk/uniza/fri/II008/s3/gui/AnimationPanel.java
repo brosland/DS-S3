@@ -7,7 +7,6 @@ import sk.uniza.fri.II008.ISimulation;
 import sk.uniza.fri.II008.s3.gui.animation.FactoryLayout;
 import sk.uniza.fri.II008.s3.gui.animation.FactoryView;
 import sk.uniza.fri.II008.s3.gui.animation.PaintingContext;
-import sk.uniza.fri.II008.s3.model.Factory;
 import sk.uniza.fri.II008.s3.FactoryReplication;
 import sk.uniza.fri.II008.s3.FactorySimulation;
 
@@ -76,7 +75,6 @@ public class AnimationPanel extends javax.swing.JPanel implements Runnable
 			}
 		} catch(InterruptedException e) {
 			e.printStackTrace();
-			return;
 		}
 	}
 }

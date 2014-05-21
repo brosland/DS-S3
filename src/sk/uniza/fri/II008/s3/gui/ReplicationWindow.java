@@ -39,7 +39,6 @@ public class ReplicationWindow extends javax.swing.JFrame
 		this.simulation.setReplicationListener(createReplicationListener());
 		
 		logsHandler = new TextAreaHandler(logsTextArea);
-		FactorySimulation.LOGGER.addHandler(logsHandler);
 
 		addWindowListener(createWindowListener());
 
