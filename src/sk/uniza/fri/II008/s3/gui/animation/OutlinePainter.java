@@ -2,6 +2,8 @@ package sk.uniza.fri.II008.s3.gui.animation;
 
 import java.awt.Color;
 
+import sk.uniza.fri.II008.s3.model.Roll;
+
 public class OutlinePainter {
 	private PaintingContext context;
 	
@@ -31,6 +33,20 @@ public class OutlinePainter {
 						context.view.transformY(positions[i].getY())
 				);
 			}
+		}
+		
+		int legendX = 10;
+		int legendY = 20;
+		int rowHeight = 15;
+		
+		for(Roll.Type type : Roll.Type.values()) {
+			context.graphics.setColor(context.getRollColor(type));
+			context.fillCircle(legendX+3, legendY-4, 5);
+			
+			context.graphics.setColor(Color.BLACK);
+			context.graphics.drawString("Roll type "+type, legendX+10, legendY);
+			
+			legendY += rowHeight;
 		}
 	}
 }

@@ -46,8 +46,9 @@ public class CranePainter {
 		int rollX = context.view.transformX(rollPosition.getX());
 		int rollY = context.view.transformY(rollPosition.getY());
 		
-		context.graphics.setColor(Color.orange);
+		context.graphics.setColor(Color.GRAY.darker());
 		context.graphics.drawLine(lineStartX, lineStartY, lineEndX, lineEndY);
+		context.graphics.setColor(context.getRollColor(request.getRoll().getType()));
 		context.fillCircle(rollX, rollY, 5);
 	}
 }
