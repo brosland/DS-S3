@@ -35,6 +35,6 @@ public abstract class AssignVehicleMessage extends VehicleMessage implements Com
 			return 1;
 		}
 
-		return rollStorage.getFilling() > assignVehicleMessage.getRollStorage().getFilling() ? -1 : 1;
+		return Double.compare(assignVehicleMessage.getRollStorage().getFilling(), rollStorage.getFilling());
 	}
 }
