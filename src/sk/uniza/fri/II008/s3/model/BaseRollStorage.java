@@ -1,5 +1,6 @@
 package sk.uniza.fri.II008.s3.model;
 
+import OSPStat.WStat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -12,6 +13,7 @@ public abstract class BaseRollStorage implements RollStorage
 	private final HashMap<Roll.State, ArrayList<Roll>> rollsByState;
 	private final Navigation.Location location;
 	private final Crane crane;
+	private WStat wStat;
 	private final Roll.ChangeStateListener rollChangeStateListener;
 
 	public BaseRollStorage(int id, int capacity, Location location, Crane crane)
@@ -132,6 +134,11 @@ public abstract class BaseRollStorage implements RollStorage
 
 		rolls.add(roll);
 		rollsByState.get(roll.getState()).add(roll);
+
+		if (wStat != null)
+		{
+			wStat.addSample(100f * rolls.size() / capacity);
+		}
 	}
 
 	@Override
@@ -145,7 +152,17 @@ public abstract class BaseRollStorage implements RollStorage
 		roll.removeListener();
 		roll.setRollStorage(null);
 
-		return rolls.remove(roll) && rollsByState.get(roll.getState()).remove(roll);
+		if (rolls.remove(roll) && rollsByState.get(roll.getState()).remove(roll))
+		{
+			if (wStat != null)
+			{
+				wStat.addSample(100f * rolls.size() / capacity);
+			}
+
+			return true;
+		}
+
+		return false;
 	}
 
 	@Override
@@ -158,6 +175,18 @@ public abstract class BaseRollStorage implements RollStorage
 	public Crane getCrane()
 	{
 		return crane;
+	}
+
+	@Override
+	public WStat getWStat()
+	{
+		return wStat;
+	}
+
+	@Override
+	public void setWStat(WStat wStat)
+	{
+		this.wStat = wStat;
 	}
 
 	@Override

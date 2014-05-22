@@ -2,7 +2,8 @@ package sk.uniza.fri.II008.s3.simulation.managers;
 
 import OSPABA.Agent;
 import OSPABA.MessageForm;
-import OSPDataStruct.SimQueue;
+import java.util.ArrayList;
+import java.util.HashMap;
 import sk.uniza.fri.II008.s3.model.Employee;
 import sk.uniza.fri.II008.s3.model.ProcessingStorage;
 import sk.uniza.fri.II008.s3.model.Roll;
@@ -12,7 +13,8 @@ import sk.uniza.fri.II008.s3.simulation.messages.ProcessRollMessage;
 
 public class EmployeeManager extends BaseManager
 {
-	private final SimQueue<ProcessRollMessage> requestQueue;
+	private final HashMap<Roll.Type, ArrayList<ProcessRollMessage>> requests;
+	private final HashMap<Roll.Type, Employee> employees;
 
 	public EmployeeManager(Agent agent)
 	{
@@ -21,7 +23,18 @@ public class EmployeeManager extends BaseManager
 		agent.addOwnMessage(MessageType.PROCESS_ROLL);
 		agent.addOwnMessage(MessageType.TRANSFER_EMPLOYEE);
 
-		requestQueue = new SimQueue<>();
+		requests = new HashMap<>();
+		employees = new HashMap<>();
+
+		for (Roll.Type rollType : Roll.Type.values())
+		{
+			requests.put(rollType, new ArrayList<ProcessRollMessage>());
+		}
+
+		for (Employee employee : getFactory().getEmployees())
+		{
+			employees.put(employee.getCurrentStorage().getRollType(), employee);
+		}
 	}
 
 	@Override
@@ -48,18 +61,9 @@ public class EmployeeManager extends BaseManager
 			getFactoryReplication().log(String.format("EmployeeManager[PROCESS_ROLL]\n - roll %s", roll));
 		}
 
-		Employee employee = null;
+		Employee employee = employees.get(roll.getType());
 
-		for (Employee e : getFactory().getEmployees())
-		{
-			if (e.getState() == Employee.State.FREE) // todo find employee in current storage
-			{
-				employee = e;
-				break;
-			}
-		}
-
-		if (employee != null)
+		if (employee.getState() == Employee.State.FREE)
 		{
 			roll.setState(Roll.State.PROCESSING);
 
@@ -74,7 +78,7 @@ public class EmployeeManager extends BaseManager
 		}
 		else
 		{
-			requestQueue.add(processRollMessage);
+			requests.get(roll.getType()).add(processRollMessage);
 		}
 	}
 
@@ -94,9 +98,9 @@ public class EmployeeManager extends BaseManager
 
 		response(processRollMessage);
 
-		if (!requestQueue.isEmpty())
+		if (!requests.get(roll.getType()).isEmpty())
 		{
-			onProcessRollMessageReceived(requestQueue.dequeue());
+			onProcessRollMessageReceived(requests.get(roll.getType()).remove(0));
 		}
 	}
 }

@@ -27,6 +27,7 @@ public class FactorySimulation extends Simulation
 	private final ISimDelegate simDelegate;
 	private FactoryReplication factoryReplication;
 	private double pauseInterval, pauseDuration;
+	private FactoryStats factoryStats;
 
 	public FactorySimulation(Random seedGen, long replicationCount, double maxTimestamp, Factory factory)
 	{
@@ -50,6 +51,8 @@ public class FactorySimulation extends Simulation
 				replicationListener.onChange();
 			}
 		};
+
+		factoryStats = new FactoryStats(factory);
 	}
 
 	private void registerGenerators(Random seedGen)
@@ -102,7 +105,10 @@ public class FactorySimulation extends Simulation
 	@Override
 	public void stop()
 	{
-		factoryReplication.stopSimulation();
+		if (getState() != State.STOPPED)
+		{
+			factoryReplication.stopSimulation();
+		}
 
 		super.stop();
 	}
@@ -121,9 +127,10 @@ public class FactorySimulation extends Simulation
 		factory.initProcessingStorage(Roll.Type.C, 0.65, 0.55);
 		factory.initCoolingStorage(0.51, 0.35);
 
-		for (Employee employee : factory.getEmployees())
+		for (int i = 0; i < factory.getEmployees().size(); i++)
 		{
-			employee.setCurrentStorage(factory.getProcessingStorage(Roll.Type.A));
+			factory.getEmployees().get(i).setCurrentStorage(
+				factory.getProcessingStorage(Roll.Type.values()[i % 3]));
 		}
 
 		factoryReplication = new FactoryReplication(this);
@@ -137,6 +144,8 @@ public class FactorySimulation extends Simulation
 		{
 			factoryReplication.setSimSpeed(pauseInterval, pauseDuration);
 		}
+
+		factoryStats.prepareReplication(factoryReplication);
 
 		MessageForm message = new MessageForm(factoryReplication);
 		message.setCode(MessageType.INIT);
@@ -153,11 +162,9 @@ public class FactorySimulation extends Simulation
 			log("Running replication " + replication);
 		}
 
-		long startTime = System.currentTimeMillis();
-
 		factoryReplication.simulate(maxTimestamp);
 
-		System.out.println((System.currentTimeMillis() - startTime));
+		factoryStats.addReplicationResults(factoryReplication);
 
 		return new Object[0];
 	}
@@ -196,5 +203,10 @@ public class FactorySimulation extends Simulation
 		{
 			factoryReplication.setSimSpeed(interval, duration);
 		}
+	}
+
+	public FactoryStats getFactoryStats()
+	{
+		return factoryStats;
 	}
 }

@@ -1,17 +1,10 @@
 package sk.uniza.fri.II008.s3.gui;
 
-import java.awt.BorderLayout;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import org.jfree.chart.ChartFactory;
-import org.jfree.chart.ChartPanel;
-import org.jfree.chart.JFreeChart;
-import org.jfree.chart.plot.PlotOrientation;
-import org.jfree.data.xy.XYSeries;
-import org.jfree.data.xy.XYSeriesCollection;
 import sk.uniza.fri.II008.ISimulation.State;
 import sk.uniza.fri.II008.ReplicationListener;
 import sk.uniza.fri.II008.Utils;
@@ -24,9 +17,6 @@ public class ReplicationWindow extends javax.swing.JFrame
 {
 	private final FactorySimulation simulation;
 	private final TextAreaHandler logsHandler;
-	private XYSeries series;
-	private JFreeChart chart;
-	private double lastAvrgWaitingTime = 0;
 	private RollStorage selectedRollStorage = null;
 
 	public ReplicationWindow(final FactorySimulation simulation)
@@ -34,7 +24,6 @@ public class ReplicationWindow extends javax.swing.JFrame
 		this.simulation = simulation;
 		
 		initComponents();
-		initJFreeChart();
 
 		this.simulation.setReplicationListener(createReplicationListener());
 		
@@ -103,39 +92,8 @@ public class ReplicationWindow extends javax.swing.JFrame
 
 					((RollTableModel) rollTable.getModel()).setValues(selectedRollStorage.getRolls());
 				}
-
-//				System.out.println(table.getValueAt(table.getSelectedRow(), 0).toString());
 			}
 		};
-	}
-
-	private void initJFreeChart()
-	{
-		series = new XYSeries("XYGraph");
-		series.setMaximumItemCount(1000);
-
-		// Add the series to your data set
-		XYSeriesCollection dataset = new XYSeriesCollection();
-		dataset.addSeries(series);
-
-		// Generate the graph
-		chart = ChartFactory.createXYLineChart(
-			"", // Title
-			"Simulačný čas", // x-axis Label
-			"Priem. čas čakania zákazníka", // y-axis Label
-			dataset, // Dataset
-			PlotOrientation.VERTICAL, // Plot Orientation
-			false, // Show Legend
-			false, // Use tooltips
-			false // Configure chart to generate URLs?
-		);
-
-		ChartPanel chartPanel = new ChartPanel(chart);
-		chartPanel.setVisible(true);
-
-		resultsChartPanel.setLayout(new java.awt.BorderLayout());
-		resultsChartPanel.add(chartPanel, BorderLayout.CENTER);
-		resultsChartPanel.validate();
 	}
 
 	/**
@@ -187,16 +145,6 @@ public class ReplicationWindow extends javax.swing.JFrame
         allowLogsCheckBox = new javax.swing.JCheckBox();
         logsScrollPane = new javax.swing.JScrollPane();
         logsTextArea = new javax.swing.JTextArea();
-        resultsScrollPane = new javax.swing.JScrollPane();
-        resultsPanel = new javax.swing.JPanel();
-        resultsPanel2 = new javax.swing.JPanel();
-        avrgWaitTimeLabel = new javax.swing.JLabel();
-        avrgWaitTimeValueLabel = new javax.swing.JLabel();
-        rollStorageFillingTablePanel = new javax.swing.JPanel();
-        rollStorageFillingTableLabel = new javax.swing.JLabel();
-        rollStorageFillingTableScrollPane = new javax.swing.JScrollPane();
-        rollStorageFillingTable = new javax.swing.JTable();
-        resultsChartPanel = new javax.swing.JPanel();
         animationScrollPane = new javax.swing.JScrollPane();
         animationPanel = new AnimationPanel(simulation);
 
@@ -493,97 +441,6 @@ public class ReplicationWindow extends javax.swing.JFrame
 
         tabbedPane.addTab("Priebeh", detailScrollPane);
 
-        resultsScrollPane.setBorder(null);
-
-        avrgWaitTimeLabel.setText("Priemerné zaplnenie skladov:");
-
-        avrgWaitTimeValueLabel.setText("NA");
-
-        javax.swing.GroupLayout resultsPanel2Layout = new javax.swing.GroupLayout(resultsPanel2);
-        resultsPanel2.setLayout(resultsPanel2Layout);
-        resultsPanel2Layout.setHorizontalGroup(
-            resultsPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, resultsPanel2Layout.createSequentialGroup()
-                .addComponent(avrgWaitTimeLabel)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 89, Short.MAX_VALUE)
-                .addComponent(avrgWaitTimeValueLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, 0))
-        );
-        resultsPanel2Layout.setVerticalGroup(
-            resultsPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(resultsPanel2Layout.createSequentialGroup()
-                .addGroup(resultsPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(avrgWaitTimeLabel)
-                    .addComponent(avrgWaitTimeValueLabel))
-                .addContainerGap(131, Short.MAX_VALUE))
-        );
-
-        rollStorageFillingTableLabel.setText("Zaplnenie skladov");
-
-        rollStorageFillingTable.setModel(new RollStorageTableModel());
-        rollStorageFillingTableScrollPane.setViewportView(rollStorageFillingTable);
-
-        javax.swing.GroupLayout rollStorageFillingTablePanelLayout = new javax.swing.GroupLayout(rollStorageFillingTablePanel);
-        rollStorageFillingTablePanel.setLayout(rollStorageFillingTablePanelLayout);
-        rollStorageFillingTablePanelLayout.setHorizontalGroup(
-            rollStorageFillingTablePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(rollStorageFillingTablePanelLayout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(rollStorageFillingTablePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(rollStorageFillingTableScrollPane, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                    .addGroup(rollStorageFillingTablePanelLayout.createSequentialGroup()
-                        .addComponent(rollStorageFillingTableLabel)
-                        .addGap(0, 178, Short.MAX_VALUE))))
-        );
-        rollStorageFillingTablePanelLayout.setVerticalGroup(
-            rollStorageFillingTablePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(rollStorageFillingTablePanelLayout.createSequentialGroup()
-                .addComponent(rollStorageFillingTableLabel)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(rollStorageFillingTableScrollPane, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
-        );
-
-        javax.swing.GroupLayout resultsChartPanelLayout = new javax.swing.GroupLayout(resultsChartPanel);
-        resultsChartPanel.setLayout(resultsChartPanelLayout);
-        resultsChartPanelLayout.setHorizontalGroup(
-            resultsChartPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 0, Short.MAX_VALUE)
-        );
-        resultsChartPanelLayout.setVerticalGroup(
-            resultsChartPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 280, Short.MAX_VALUE)
-        );
-
-        javax.swing.GroupLayout resultsPanelLayout = new javax.swing.GroupLayout(resultsPanel);
-        resultsPanel.setLayout(resultsPanelLayout);
-        resultsPanelLayout.setHorizontalGroup(
-            resultsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(resultsPanelLayout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(resultsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(resultsChartPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(resultsPanelLayout.createSequentialGroup()
-                        .addComponent(resultsPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 87, Short.MAX_VALUE)
-                        .addComponent(rollStorageFillingTablePanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap())
-        );
-        resultsPanelLayout.setVerticalGroup(
-            resultsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(resultsPanelLayout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(resultsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(resultsPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(rollStorageFillingTablePanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addGap(18, 18, 18)
-                .addComponent(resultsChartPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addContainerGap())
-        );
-
-        resultsScrollPane.setViewportView(resultsPanel);
-
-        tabbedPane.addTab("Výsledky", resultsScrollPane);
-
         animationScrollPane.setBorder(null);
 
         javax.swing.GroupLayout animationPanelLayout = new javax.swing.GroupLayout(animationPanel);
@@ -688,8 +545,6 @@ public class ReplicationWindow extends javax.swing.JFrame
 				updateTables(timestamp);
 
 				allowLogsCheckBox.setSelected(simulation.isEnabledLogging());
-
-//				updateResults(simulation.getTimestamp(), simulation.getStats().createReplicationStatsSnapshot());
 			}
 		});
 	}
@@ -741,35 +596,6 @@ public class ReplicationWindow extends javax.swing.JFrame
 		((EmployeeTableModel) employeeTable.getModel()).onChangeList(timestamp);
 	}
 
-//	private void updateResults(double timestamp, Stats.ReplicationStatsSnapshot stats)
-//	{
-//		avrgWaitTimeValueLabel.setText(String.format("%s (%.3f min)",
-//			Utils.formatTime(stats.avrgWaitingTime), stats.avrgWaitingTime / 60.0));
-//		customerCountValueLabel.setText(Long.toString(stats.customers));
-//		servedCustomerCountValueLabel.setText(String.format("%d (%.3f %%)",
-//			stats.servedCustomers, stats.customers > 0 ? 100.0 * stats.servedCustomers / stats.customers : 0));
-//		leftCustomerCountValueLabel.setText(String.format("%d (%.3f %%)",
-//			stats.leftCustomers, stats.customers > 0 ? 100.0 * stats.leftCustomers / stats.customers : 0));
-//		avrgFreeEmployeeValueLabel.setText(String.format("%.3f / %.3f",
-//			stats.avrgFreeCooks, stats.avrgFreeWaiters));
-//		avrgPreparingMealTimeValueLabel.setText(String.format("%s (%.3f min)",
-//			Utils.formatTime(stats.avrgPreparingMealTime), stats.avrgPreparingMealTime / 60.0));
-//
-//		ArrayList<Employee> employees = new ArrayList<>();
-//		employees.addAll(simulation.getRestaurant().getCooks());
-//		employees.addAll(simulation.getRestaurant().getWaiters());
-//
-//		EmployeeDowntimeTableModel model = (EmployeeDowntimeTableModel) rollStorageFillingTable.getModel();
-//		model.setValues(employees);
-//
-//		if (lastAvrgWaitingTime != stats.avrgWaitingTime)
-//		{
-//			series.add(timestamp, stats.avrgWaitingTime, true);
-//			chart.getXYPlot().getRangeAxis().setRange(series.getMinY(), series.getMaxY());
-//
-//			lastAvrgWaitingTime = stats.avrgWaitingTime;
-//		}
-//	}
 	private void updateSimulationPauseEvent()
 	{
 		if (useStepsCheckBox.isSelected())
@@ -787,8 +613,6 @@ public class ReplicationWindow extends javax.swing.JFrame
     private javax.swing.JCheckBox allowLogsCheckBox;
     private javax.swing.JPanel animationPanel;
     private javax.swing.JScrollPane animationScrollPane;
-    private javax.swing.JLabel avrgWaitTimeLabel;
-    private javax.swing.JLabel avrgWaitTimeValueLabel;
     private javax.swing.JSeparator contentSeparator;
     private javax.swing.JTable craneTable;
     private javax.swing.JLabel craneTableLabel;
@@ -807,14 +631,6 @@ public class ReplicationWindow extends javax.swing.JFrame
     private javax.swing.JScrollPane logsScrollPane;
     private javax.swing.JTextArea logsTextArea;
     private javax.swing.JButton pauseButton;
-    private javax.swing.JPanel resultsChartPanel;
-    private javax.swing.JPanel resultsPanel;
-    private javax.swing.JPanel resultsPanel2;
-    private javax.swing.JScrollPane resultsScrollPane;
-    private javax.swing.JTable rollStorageFillingTable;
-    private javax.swing.JLabel rollStorageFillingTableLabel;
-    private javax.swing.JPanel rollStorageFillingTablePanel;
-    private javax.swing.JScrollPane rollStorageFillingTableScrollPane;
     private javax.swing.JPanel rollStoragePanel;
     private javax.swing.JTable rollStorageTable;
     private javax.swing.JLabel rollStorageTableLabel;

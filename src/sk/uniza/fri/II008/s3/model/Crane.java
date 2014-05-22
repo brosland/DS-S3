@@ -1,5 +1,6 @@
 package sk.uniza.fri.II008.s3.model;
 
+import OSPStat.Stat;
 import sk.uniza.fri.II008.s3.model.requests.CraneRequest;
 
 public class Crane
@@ -58,6 +59,7 @@ public class Crane
 	public void setCraneRequest(CraneRequest craneRequest)
 	{
 		this.craneRequest = craneRequest;
+
 		workingTime += craneRequest.getDuration();
 	}
 

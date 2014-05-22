@@ -90,6 +90,7 @@ public class Employee
 		}
 
 		this.employeeRequest = employeeRequest;
+
 		workingTime += employeeRequest.getDuration();
 	}
 
@@ -107,5 +108,6 @@ public class Employee
 	public void reset()
 	{
 		state = State.FREE;
+		workingTime = 0f;
 	}
 }

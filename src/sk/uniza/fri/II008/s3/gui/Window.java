@@ -1,34 +1,39 @@
 package sk.uniza.fri.II008.s3.gui;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.HashMap;
 import java.util.Random;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.plot.XYPlot;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import sk.uniza.fri.II008.ISimulation.ISimulationListener;
 import sk.uniza.fri.II008.ISimulation.State;
 import sk.uniza.fri.II008.SimulationListener;
 import sk.uniza.fri.II008.s3.FactorySimulation;
-import sk.uniza.fri.II008.s3.gui.tabelModels.RollStorageTableModel;
+import sk.uniza.fri.II008.s3.FactoryStats;
+import sk.uniza.fri.II008.s3.gui.tabelModels.RollStorageStatsTableModel;
 import sk.uniza.fri.II008.s3.model.Factory;
+import sk.uniza.fri.II008.s3.model.RollStorage;
 
 public class Window extends javax.swing.JFrame
 {
 	private final ISimulationListener simulationListener;
 	private FactorySimulation simulation;
-	private XYSeries series;
-	private JFreeChart chart;
+	private HashMap<RollStorage, XYSeries> rollStorageSeries;
+	private JFreeChart storageChart;
 	private ReplicationWindow replicationWindow;
 
 	public Window()
 	{
 		initComponents();
-		initJFreeChart();
+		initStorageJFreeChart();
 		setLocationRelativeTo(null);
 
 		simulationListener = new SimulationListener()
@@ -41,12 +46,7 @@ public class Window extends javax.swing.JFrame
 					@Override
 					public void run()
 					{
-						if (replication > simulation.getReplicationCount() * 0.3
-							&& replication % (simulation.getReplicationCount() / 200.0) == 0)
-						{
-//							updateStats(replication, (Stats.StatsSnapshot) values[1]);
-						}
-
+						updateStats(replication);
 						updateReplicationProgressBar(replication);
 					}
 				});
@@ -61,7 +61,11 @@ public class Window extends javax.swing.JFrame
 					public void run()
 					{
 						updateReplicationProgressBar(0);
-						series.clear();
+
+						for (RollStorage rollStorage : simulation.getFactory().getAllRollStorages())
+						{
+							rollStorageSeries.get(rollStorage).clear();
+						}
 
 						stopButton.setEnabled(true);
 						startButton.setText("Pause");
@@ -98,9 +102,11 @@ public class Window extends javax.swing.JFrame
         resultsPanel = new javax.swing.JPanel();
         resultsPanel2 = new javax.swing.JPanel();
         avrgRollStorageFillingLabel = new javax.swing.JLabel();
-        avrgRollStorageFillingValueLabel = new javax.swing.JLabel();
+        avrgEmployeeWorkingTimeValueLabel = new javax.swing.JLabel();
         intervalLabel = new javax.swing.JLabel();
-        intervalValueLabel = new javax.swing.JLabel();
+        avrgVehicleWorkingTimeValueLabel = new javax.swing.JLabel();
+        jLabel1 = new javax.swing.JLabel();
+        avrgCraneWorkingTimeValueLabel = new javax.swing.JLabel();
         rollStorageFillingPanel = new javax.swing.JPanel();
         rollStorageFillingLabel = new javax.swing.JLabel();
         rollStorageFillingScrollPane = new javax.swing.JScrollPane();
@@ -181,44 +187,53 @@ public class Window extends javax.swing.JFrame
         resultsScrollPane.setBorder(null);
         resultsScrollPane.setName(""); // NOI18N
 
-        avrgRollStorageFillingLabel.setText("Priemerné zaplnenie skladov:");
+        avrgRollStorageFillingLabel.setText("Priemerné využitie zamestnancov:");
 
-        avrgRollStorageFillingValueLabel.setText("NA");
+        avrgEmployeeWorkingTimeValueLabel.setText("NA");
 
-        intervalLabel.setText("90% interval spoľahlivosti:");
+        intervalLabel.setText("Priemerné využitie vozidiel:");
 
-        intervalValueLabel.setText("NA");
+        avrgVehicleWorkingTimeValueLabel.setText("NA");
+
+        jLabel1.setText("Priemerné využitie žeriavov:");
+
+        avrgCraneWorkingTimeValueLabel.setText("NA");
 
         javax.swing.GroupLayout resultsPanel2Layout = new javax.swing.GroupLayout(resultsPanel2);
         resultsPanel2.setLayout(resultsPanel2Layout);
         resultsPanel2Layout.setHorizontalGroup(
             resultsPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(resultsPanel2Layout.createSequentialGroup()
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, resultsPanel2Layout.createSequentialGroup()
                 .addGroup(resultsPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(intervalLabel)
-                    .addComponent(avrgRollStorageFillingLabel))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 89, Short.MAX_VALUE)
+                    .addComponent(avrgRollStorageFillingLabel)
+                    .addComponent(jLabel1))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(resultsPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(intervalValueLabel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 120, Short.MAX_VALUE)
-                    .addComponent(avrgRollStorageFillingValueLabel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addGap(0, 0, 0))
+                    .addComponent(avrgCraneWorkingTimeValueLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 120, Short.MAX_VALUE)
+                    .addComponent(avrgVehicleWorkingTimeValueLabel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(avrgEmployeeWorkingTimeValueLabel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
         );
         resultsPanel2Layout.setVerticalGroup(
             resultsPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(resultsPanel2Layout.createSequentialGroup()
                 .addGroup(resultsPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(avrgRollStorageFillingLabel)
-                    .addComponent(avrgRollStorageFillingValueLabel))
+                    .addComponent(avrgEmployeeWorkingTimeValueLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(resultsPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(intervalLabel)
-                    .addComponent(intervalValueLabel))
-                .addContainerGap(111, Short.MAX_VALUE))
+                    .addComponent(avrgVehicleWorkingTimeValueLabel))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(resultsPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel1)
+                    .addComponent(avrgCraneWorkingTimeValueLabel))
+                .addContainerGap(91, Short.MAX_VALUE))
         );
 
         rollStorageFillingLabel.setText("Zaplnenie skladov");
 
-        rollStorageFillingTable.setModel(new RollStorageTableModel());
+        rollStorageFillingTable.setModel(new RollStorageStatsTableModel());
         rollStorageFillingScrollPane.setViewportView(rollStorageFillingTable);
 
         javax.swing.GroupLayout rollStorageFillingPanelLayout = new javax.swing.GroupLayout(rollStorageFillingPanel);
@@ -231,7 +246,7 @@ public class Window extends javax.swing.JFrame
                     .addComponent(rollStorageFillingScrollPane, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
                     .addGroup(rollStorageFillingPanelLayout.createSequentialGroup()
                         .addComponent(rollStorageFillingLabel)
-                        .addGap(0, 178, Short.MAX_VALUE))))
+                        .addGap(0, 211, Short.MAX_VALUE))))
         );
         rollStorageFillingPanelLayout.setVerticalGroup(
             rollStorageFillingPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -262,8 +277,8 @@ public class Window extends javax.swing.JFrame
                     .addComponent(resultsChartPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(resultsPanelLayout.createSequentialGroup()
                         .addComponent(resultsPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 39, Short.MAX_VALUE)
-                        .addComponent(rollStorageFillingPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(rollStorageFillingPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         resultsPanelLayout.setVerticalGroup(
@@ -305,7 +320,7 @@ public class Window extends javax.swing.JFrame
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(tabbedPane, javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(tabbedPane, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 654, Short.MAX_VALUE)
                     .addComponent(separator)
                     .addComponent(descriptionPanel, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
@@ -325,28 +340,33 @@ public class Window extends javax.swing.JFrame
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-	private void initJFreeChart()
+	private void initStorageJFreeChart()
 	{
-		series = new XYSeries("XYGraph");
-		series.setMaximumItemCount(1000);
-
 		// Add the series to your data set
 		XYSeriesCollection dataset = new XYSeriesCollection();
-		dataset.addSeries(series);
 
 		// Generate the graph
-		chart = ChartFactory.createXYLineChart(
+		storageChart = ChartFactory.createXYLineChart(
 			"", // Title
 			"replikácia", // x-axis Label
-			"priemerné zaplnenie skladu", // y-axis Label
+			"priemerné zaplnenie", // y-axis Label
 			dataset, // Dataset
 			PlotOrientation.VERTICAL, // Plot Orientation
-			false, // Show Legend
+			true, // Show Legend
 			false, // Use tooltips
 			false // Configure chart to generate URLs?
 		);
 
-		ChartPanel chartPanel = new ChartPanel(chart);
+		XYPlot plot = storageChart.getXYPlot();
+		plot.getRenderer().setSeriesPaint(0, Color.GREEN);
+		plot.getRenderer().setSeriesPaint(1, Color.RED);
+		plot.getRenderer().setSeriesPaint(2, Color.BLUE);
+		plot.getRenderer().setSeriesPaint(3, Color.YELLOW);
+		plot.getRenderer().setSeriesPaint(4, Color.ORANGE);
+		plot.getRenderer().setSeriesPaint(5, Color.PINK);
+		plot.getRenderer().setSeriesPaint(6, Color.DARK_GRAY);
+
+		ChartPanel chartPanel = new ChartPanel(storageChart);
 		chartPanel.setVisible(true);
 
 		resultsChartPanel.setLayout(new java.awt.BorderLayout());
@@ -449,6 +469,21 @@ public class Window extends javax.swing.JFrame
 		this.simulation = simulation;
 		this.simulation.setSimulationListener(simulationListener);
 
+		((RollStorageStatsTableModel) rollStorageFillingTable.getModel()).init(
+			simulation.getFactoryStats(), simulation.getFactory().getAllRollStorages());
+
+		rollStorageSeries = new HashMap<>();
+		XYSeriesCollection dataset = new XYSeriesCollection();
+
+		for (RollStorage rollStorage : simulation.getFactory().getAllRollStorages())
+		{
+			XYSeries xySeries = new XYSeries(rollStorage.getName());
+			dataset.addSeries(xySeries);
+			rollStorageSeries.put(rollStorage, xySeries);
+		}
+
+		storageChart.getXYPlot().setDataset(dataset);
+
 		java.awt.EventQueue.invokeLater(new Runnable()
 		{
 			@Override
@@ -482,39 +517,51 @@ public class Window extends javax.swing.JFrame
 		}
 	}
 
-//	private void updateStats(long replication, Stats.StatsSnapshot stats)
-//	{
-//		avrgWaitTimeValueLabel.setText(String.format("%s (%.3f min)",
-//			Utils.formatTime(stats.avrgWaitingTime), stats.avrgWaitingTime / 60.0));
-//		intervalValueLabel.setText(String.format("<%.3f ; %.3f)",
-//			stats.confidenceInterval[0] / 60.0, stats.confidenceInterval[1] / 60.0));
-//		customerCountValueLabel.setText(String.format("%.3f", stats.avrgCustomers));
-//		servedCustomerCountValueLabel.setText(String.format("%.3f %%", stats.avrgServedCustomers * 100.0));
-//		leftCustomerCountValueLabel.setText(String.format("%.3f %%", stats.avrgLeftCustomers * 100.0));
-//		avrgFreeEmployeeValueLabel.setText(String.format("%.3f / %.3f",
-//			stats.avrgFreeCooks, stats.avrgFreeWaiters));
-//		avrgPreparingMealTimeValueLabel.setText(String.format("%s (%.3f min)",
-//			Utils.formatTime(stats.avrgPreparingMealTime), stats.avrgPreparingMealTime / 60.0));
-//
-//		ArrayList<Employee> employees = new ArrayList<>();
-//		employees.addAll(simulation.getRestaurant().getCooks());
-//		employees.addAll(simulation.getRestaurant().getWaiters());
-//
-//		EmployeeDowntimeTableModel model = (EmployeeDowntimeTableModel) employeeDowntimeTable.getModel();
-//		model.setValues(employees);
-//
-//		series.add(replication, stats.avrgWaitingTime, true);
-//		chart.getXYPlot().getRangeAxis().setRange(series.getMinY(), series.getMaxY());
-//	}
+	private void updateStats(long replication)
+	{
+		FactoryStats factoryStats = simulation.getFactoryStats();
+		
+		((RollStorageStatsTableModel) rollStorageFillingTable.getModel()).onChangeList(replication);
+
+		avrgEmployeeWorkingTimeValueLabel.setText(String.format("%.3f %%",
+			factoryStats.getAvrgEmployeeWorkingTime()));
+		avrgVehicleWorkingTimeValueLabel.setText(String.format("%.3f %%",
+			factoryStats.getAvrgVehicleWorkingTime()));
+		avrgCraneWorkingTimeValueLabel.setText(String.format("%.3f %%",
+			factoryStats.getAvrgCraneWorkingTime()));
+
+		double min = Double.MAX_VALUE, max = Double.MIN_VALUE;
+
+		for (RollStorage rollStorage : simulation.getFactory().getAllRollStorages())
+		{
+			double value = factoryStats.getRollStorageStat(rollStorage).mean();
+
+			rollStorageSeries.get(rollStorage).add(replication, value, true);
+
+			if (min > rollStorageSeries.get(rollStorage).getMinY())
+			{
+				min = rollStorageSeries.get(rollStorage).getMinY();
+			}
+
+			if (max < rollStorageSeries.get(rollStorage).getMaxY())
+			{
+				max = rollStorageSeries.get(rollStorage).getMaxY();
+			}
+		}
+
+		storageChart.getXYPlot().getRangeAxis().setRange(min, max);
+	}
 
 	// <editor-fold defaultstate="collapsed" desc="Components">
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLabel avrgCraneWorkingTimeValueLabel;
+    private javax.swing.JLabel avrgEmployeeWorkingTimeValueLabel;
     private javax.swing.JLabel avrgRollStorageFillingLabel;
-    private javax.swing.JLabel avrgRollStorageFillingValueLabel;
+    private javax.swing.JLabel avrgVehicleWorkingTimeValueLabel;
     private javax.swing.JPanel descriptionPanel;
     private javax.swing.JMenu fileMenu;
     private javax.swing.JLabel intervalLabel;
-    private javax.swing.JLabel intervalValueLabel;
+    private javax.swing.JLabel jLabel1;
     private javax.swing.JMenuBar menuBar;
     private javax.swing.JMenuItem newSimulationMenuItem;
     private javax.swing.JButton replicationDetailButton;

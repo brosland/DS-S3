@@ -1,5 +1,6 @@
 package sk.uniza.fri.II008.s3.model;
 
+import OSPStat.WStat;
 import java.util.List;
 
 public interface RollStorage extends Navigation.Point, RollStorable
@@ -19,6 +20,10 @@ public interface RollStorage extends Navigation.Point, RollStorable
 	public List<Roll> getRolls();
 
 	public Crane getCrane();
+
+	public WStat getWStat();
+
+	public void setWStat(WStat wStat);
 
 	public void reset();
 }

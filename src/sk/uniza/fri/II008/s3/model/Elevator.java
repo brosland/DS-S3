@@ -16,10 +16,4 @@ public class Elevator extends BaseRollStorage
 	{
 		return "D" + getId();
 	}
-
-//	@Override
-//	public synchronized double getFilling()
-//	{
-//		return super.getFilling() * (getName().equals("D2") ? 1.2 : 1.0);
-//	}
 }
